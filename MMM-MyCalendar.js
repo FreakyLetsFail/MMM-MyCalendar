@@ -25,7 +25,7 @@ Module.register("MMM-MyCalendar", {
     }
   
     self.sendSocketNotification("GET_CALENDAR_DATA", { url: url });
-  }
+  },
   
 
   getDom: function () {
