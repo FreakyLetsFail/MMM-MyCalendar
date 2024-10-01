@@ -36,16 +36,25 @@ Module.register("MMM-MyCalendar", {
 
     // Filtere nur zukünftige Ereignisse und sortiere sie nach Startdatum
     const futureEvents = this.calendarData
-      .filter(event => new Date(event.startTime) > now)       // Nur zukünftige Events
-      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime)) // Nach Startzeit sortieren
-      .slice(0, this.config.maximumEntries);                  // Zeige nur die ersten 4 Events
+      .filter(event => new Date(event.startTime) > now)
+      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
+      .slice(0, this.config.maximumEntries);
 
     // Hauptcontainer im Stil von MMM-OnSpotify
     const baseContainer = document.createElement("div");
-    baseContainer.className = "ONSP-Base"; // Verwende die gleiche Basis-Klasse
+    baseContainer.className = "ONSP-Base";
 
     futureEvents.forEach(event => {
-      // 'player' Div für jeden Kalendereintrag
+      // Extrahiere das formatierte Datum aus der Beschreibung
+      let formattedDate = "";
+      if (event.description) {
+        const dateMatch = event.description.match(/Date: (.*)/);
+        if (dateMatch && dateMatch[1]) {
+          formattedDate = dateMatch[1];
+        }
+      }
+
+      // 'player' Div
       const playerDiv = document.createElement("div");
       playerDiv.className = "player";
 
@@ -53,9 +62,19 @@ Module.register("MMM-MyCalendar", {
       const headerDiv = document.createElement("div");
       headerDiv.className = "header";
 
-      // 'visual' Div (eventuell für ein visuelles Element oder eine Linie)
+      // 'icon' Span (das Icon)
+      const iconSpan = document.createElement("span");
+      iconSpan.className = this.getEventIcon(event.description) + " icon";
+
+      // 'visual' Div (die Pipe)
       const visualDiv = document.createElement("div");
       visualDiv.className = "visual";
+
+      // Setze die Farbe der Pipe basierend auf der Kategorie
+      const pipeColor = this.getPipeColor(event.description);
+      if (pipeColor) {
+        visualDiv.style.backgroundColor = pipeColor;
+      }
 
       // 'names' Div
       const namesDiv = document.createElement("div");
@@ -69,31 +88,21 @@ Module.register("MMM-MyCalendar", {
       // 'subtitle' Div
       const subtitleDiv = document.createElement("div");
       subtitleDiv.className = "subtitle";
-      const eventStartTime = new Date(event.startTime);
-      subtitleDiv.innerHTML = `${eventStartTime.toLocaleDateString()} ${eventStartTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      subtitleDiv.innerHTML = formattedDate || event.startTime;
 
       // Füge 'title' und 'subtitle' zu 'names' hinzu
       namesDiv.appendChild(titleDiv);
       namesDiv.appendChild(subtitleDiv);
 
-      // Füge 'visual' und 'names' zu 'header' hinzu
+      // Füge 'icon', 'visual' und 'names' zu 'header' hinzu
+      headerDiv.appendChild(iconSpan);
       headerDiv.appendChild(visualDiv);
       headerDiv.appendChild(namesDiv);
 
-      // 'swappable' Div (für das Icon)
-      const swappableDiv = document.createElement("div");
-      swappableDiv.className = "swappable";
-
-      // Icon hinzufügen
-      const iconSpan = document.createElement("span");
-      iconSpan.className = this.getEventIcon(event.description) + " media top";
-      swappableDiv.appendChild(iconSpan);
-
-      // Füge alle Teile zum 'player' Div hinzu
+      // Füge 'header' zu 'playerDiv' hinzu
       playerDiv.appendChild(headerDiv);
-      playerDiv.appendChild(swappableDiv);
 
-      // Füge das 'player' Div zum Hauptcontainer hinzu
+      // Füge 'playerDiv' zum Hauptcontainer hinzu
       baseContainer.appendChild(playerDiv);
     });
 
@@ -136,6 +145,31 @@ Module.register("MMM-MyCalendar", {
       return "fas fa-briefcase";       // Icon für Arbeit
     } else {
       return "fas fa-calendar-alt";    // Standard-Icon
+    }
+  },
+
+  // Funktion zum Festlegen der Farbe der Pipe basierend auf der Kategorie
+  getPipeColor: function (eventDescription) {
+    if (eventDescription.includes("Category: meet friends")) {
+      return "#FF6347"; // Tomatenrot
+    } else if (eventDescription.includes("Category: holidays")) {
+      return "#FFD700"; // Gold
+    } else if (eventDescription.includes("Category: family")) {
+      return "#1E90FF"; // DodgerBlue
+    } else if (eventDescription.includes("Category: studium")) {
+      return "#32CD32"; // LimeGreen
+    } else if (eventDescription.includes("Category: andere Termine")) {
+      return "#FFFFFF"; // Weiß
+    } else if (eventDescription.includes("Category: Geburtstage")) {
+      return "#FF69B4"; // HotPink
+    } else if (eventDescription.includes("Category: arzt")) {
+      return "#8A2BE2"; // BlueViolet
+    } else if (eventDescription.includes("Category: Verbindung")) {
+      return "#FF4500"; // OrangeRed
+    } else if (eventDescription.includes("Category: Arbeit")) {
+      return "#A52A2A"; // Braun
+    } else {
+      return null; // Standardfarbe
     }
   }
 });

@@ -16,22 +16,28 @@
   width: var(--ONSP-INTERNAL-PLAYER-SIZE-WIDTH);
   animation: var(--ONSP-INTERNAL-LOWPOWER-FADEIN) var(--ONSP-INTERNAL-PLAYER-TRANSITION-TIME);
   text-align: left;
-  gap: var(--ONSP-INTERNAL-PLAYER-GAP);
+  gap: 0.3em; /* Reduzierter Abstand zwischen den Einträgen */
   z-index: 1;
+  margin-bottom: 0.5em; /* Zusätzliche Reduzierung des Abstands */
 }
 
 .MMM-MyCalendar .player .header {
   display: flex;
   flex-direction: row;
-  align-items: stretch;
-  gap: 0.5em;
-  padding-bottom: 0.04em;
+  align-items: center; /* Vertikale Zentrierung */
+  gap: 0.3em; /* Anpassung des Abstands zwischen den Elementen */
+}
+
+.MMM-MyCalendar .player .header .icon {
+  font-size: 1.5em; /* Größe des Icons anpassen */
+  color: var(--ONSP-INTERNAL-COLOR-MUTED);
 }
 
 .MMM-MyCalendar .player .header .visual {
   background-color: var(--ONSP-INTERNAL-PLAYER-COLOR-TITLE);
   width: 0.08em;
   border-radius: 1em;
+  height: 2em; /* Höhe an den Text anpassen */
 }
 
 .MMM-MyCalendar .player .header .names {
@@ -47,55 +53,17 @@
 .MMM-MyCalendar .player .header .names .title {
   display: flex;
   align-items: center;
-  font-size: 1.25em;
+  font-size: 1.1em;
   font-weight: bold;
   color: var(--ONSP-INTERNAL-PLAYER-COLOR-TITLE);
-  margin-bottom: -0.16em;
-  margin-top: -0.1em;
 }
 
 .MMM-MyCalendar .player .header .names .subtitle {
   display: flex;
   align-items: center;
   font-size: 0.9em;
-  padding-left: 0.04em;
-  color: var(--ONSP-INTERNAL-PLAYER-COLOR-TITLE);
-  font-weight: 100;
-  margin-top: -0.16em;
-  margin-bottom: -0.1em;
-}
-
-.MMM-MyCalendar .player .swappable {
-  min-height: var(--ONSP-INTERNAL-PLAYER-SIZE-WIDTH);
-  height: var(--ONSP-INTERNAL-PLAYER-SIZE-WIDTH);
-  display: block;
-  position: relative;
-  width: var(--ONSP-INTERNAL-PLAYER-SIZE-WIDTH);
-  overflow: hidden;
-  border-radius: var(--ONSP-INTERNAL-PLAYER-MEDIA-CORNERS);
-}
-
-.MMM-MyCalendar .player .swappable .media {
-  width: 100%;
-  opacity: 0;
-  z-index: 0;
-  transition: opacity var(--ONSP-INTERNAL-COVER-FADE-TIME) var(--ONSP-INTERNAL-COVER-FADE-EASING);
-  position: absolute;
-  border-radius: var(--ONSP-INTERNAL-PLAYER-MEDIA-CORNERS);
-  overflow: hidden;
-}
-
-.MMM-MyCalendar .player .swappable .top {
-  opacity: 1;
-  z-index: 10;
-  /* Füge die Icon-Klasse hinzu */
-  font-size: 5em; /* Größe des Icons anpassen */
-  text-align: center;
   color: var(--ONSP-INTERNAL-COLOR-MUTED);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
+  font-weight: 100;
 }
 
 :root {
@@ -114,3 +82,51 @@
 }
 
 /* Optional: Weitere Anpassungen, falls notwendig */
+
+/* Reduzierung des Abstands zwischen den Einträgen */
+.MMM-MyCalendar .player {
+  gap: 0.3em;
+  margin-bottom: 0.5em;
+}
+
+/* Positionierung des Icons links neben der Pipe */
+.MMM-MyCalendar .header {
+  align-items: center;
+  gap: 0.3em;
+}
+
+.MMM-MyCalendar .header .icon {
+  font-size: 1.5em;
+  color: var(--ONSP-INTERNAL-COLOR-MUTED);
+}
+
+.MMM-MyCalendar .header .visual {
+  height: 2em;
+}
+
+/* Anpassung der Titel- und Untertitelstile */
+.MMM-MyCalendar .header .names .title {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--ONSP-INTERNAL-PLAYER-COLOR-TITLE);
+}
+
+.MMM-MyCalendar .header .names .subtitle {
+  font-size: 0.9em;
+  color: var(--ONSP-INTERNAL-COLOR-MUTED);
+  font-weight: 100;
+}
+
+/* Falls Sie die Farbe der Pipe basierend auf der Kategorie anpassen möchten,
+   können Sie dies hier tun, indem Sie Klassen für jede Kategorie hinzufügen. */
+/* Beispiel:
+.MMM-MyCalendar .header .visual.meet-friends {
+  background-color: #FF6347; /* Tomatenrot */
+  
+.MMM-MyCalendar .header .visual.holidays {
+  background-color: #FFD700; /* Gold */
+}
+/* Fügen Sie ähnliche Regeln für andere Kategorien hinzu */
+
+/* Hinweis: Stellen Sie sicher, dass Sie die entsprechende Klasse im JavaScript hinzufügen,
+   um diese Styles zu aktivieren. */
