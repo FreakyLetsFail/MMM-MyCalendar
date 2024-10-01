@@ -40,8 +40,8 @@ module.exports = NodeHelper.create({
       if (event.type === "VEVENT") {
         events.push({
           title: event.summary,
-          startTime: event.start.toLocaleString(),
-          endTime: event.end.toLocaleString(),
+          startTime: event.start, // Speichere als Date-Objekt
+          endTime: event.end,     // Speichere als Date-Objekt
           description: event.description || ""
         });
       }

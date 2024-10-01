@@ -2,7 +2,7 @@
 
 Module.register("MMM-MyCalendar", {
   defaults: {
-    calendarUrl: "",               // URL zu deiner kombinierten .ics-Datei
+    calendarUrl: "",               // URL zu Ihrer kombinierten .ics-Datei
     updateInterval: 60 * 60 * 1000, // Aktualisierung alle 60 Minuten
     fadeSpeed: 4000,
     maximumEntries: 4              // Maximale Anzahl der angezeigten Einträge
@@ -36,8 +36,8 @@ Module.register("MMM-MyCalendar", {
 
     // Filtere nur zukünftige Ereignisse und sortiere sie nach Startdatum
     const futureEvents = this.calendarData
-      .filter(event => new Date(event.startTime) > now)
-      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
+      .filter(event => event.startTime > now)
+      .sort((a, b) => a.startTime - b.startTime)
       .slice(0, this.config.maximumEntries);
 
     // Hauptcontainer im Stil von MMM-OnSpotify
@@ -47,11 +47,18 @@ Module.register("MMM-MyCalendar", {
     futureEvents.forEach(event => {
       // Extrahiere das formatierte Datum aus der Beschreibung
       let formattedDate = "";
-      if (event.description) {
-        const dateMatch = event.description.match(/Date: (.*)/);
+      const eventDescription = event.description || "";
+
+      if (eventDescription) {
+        const dateMatch = eventDescription.match(/Date: (.*)/);
         if (dateMatch && dateMatch[1]) {
           formattedDate = dateMatch[1];
         }
+      }
+
+      // Falls kein formatiertes Datum vorhanden ist, formatieren wir es hier
+      if (!formattedDate) {
+        formattedDate = event.startTime.toLocaleString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
       }
 
       // 'player' Div
@@ -64,14 +71,14 @@ Module.register("MMM-MyCalendar", {
 
       // 'icon' Span (das Icon)
       const iconSpan = document.createElement("span");
-      iconSpan.className = this.getEventIcon(event.description) + " icon";
+      iconSpan.className = this.getEventIcon(eventDescription) + " icon";
 
       // 'visual' Div (die Pipe)
       const visualDiv = document.createElement("div");
       visualDiv.className = "visual";
 
       // Setze die Farbe der Pipe basierend auf der Kategorie
-      const pipeColor = this.getPipeColor(event.description);
+      const pipeColor = this.getPipeColor(eventDescription);
       if (pipeColor) {
         visualDiv.style.backgroundColor = pipeColor;
       }
@@ -88,7 +95,7 @@ Module.register("MMM-MyCalendar", {
       // 'subtitle' Div
       const subtitleDiv = document.createElement("div");
       subtitleDiv.className = "subtitle";
-      subtitleDiv.innerHTML = formattedDate || event.startTime;
+      subtitleDiv.innerHTML = formattedDate;
 
       // Füge 'title' und 'subtitle' zu 'names' hinzu
       namesDiv.appendChild(titleDiv);
