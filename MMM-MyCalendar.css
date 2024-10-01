@@ -1,41 +1,37 @@
 .calendarWrapper {
-  background-color: rgba(0, 0, 0, 0.7); /* Halbtransparenter Hintergrund */
-  border-radius: 10px; /* Abgerundete Ecken */
-  padding: 15px; /* Innenabstand */
-  margin: 10px; /* Außenabstand */
-  max-width: 400px; /* Maximale Breite */
-  font-family: 'Roboto', sans-serif; /* Minimalistische, moderne Schrift */
-  color: #fff; /* Heller Text für guten Kontrast */
-  text-align: left; /* Linksbündiger Text */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Leichter Schatten für den Tiefeneffekt */
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 400px;
+  font-family: 'Roboto', sans-serif;
+  color: #fff;
 }
 
 .calendarEvent {
   padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Dünne, halbtransparente Trennlinie */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
 }
 
-.calendarEvent:last-child {
-  border-bottom: none;
+.eventDetails {
+  display: flex;
+  flex-direction: column;
 }
 
 .eventTitle {
-  font-size: 20px; /* Schriftgröße des Titels */
-  font-weight: bold; /* Fettschrift für Titel */
-  margin-left: 10px; /* Abstand zwischen Icon und Titel */
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .eventTime {
-  font-size: 16px; /* Kleinere Schriftgröße für Zeitangaben */
-  color: rgba(255, 255, 255, 0.7); /* Leicht transparent für weniger Gewicht */
-  margin-top: 5px; /* Abstand oberhalb der Zeitangabe */
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .calendarEvent .fas {
-  font-size: 24px;
-  color: #1db954; /* Spotify-Grün für die Icons */
+  font-size: 20px;
+  color: #1db954; /* Icon-Farbe (ähnlich wie Spotify-Grün) */
 }
 
   

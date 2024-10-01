@@ -4,10 +4,10 @@
 
 Module.register("MMM-MyCalendar", {
   defaults: {
-    calendarUrl: "", // URL zu deiner kombinierten .ics-Datei
+    calendarUrl: "",               // URL zu deiner kombinierten .ics-Datei
     updateInterval: 60 * 60 * 1000, // Aktualisierung alle 60 Minuten
     fadeSpeed: 4000,
-    maximumEntries: 4  // Maximale Anzahl der angezeigten Einträge
+    maximumEntries: 4              // Maximale Anzahl der angezeigten Einträge
   },
 
   start: function () {
@@ -18,56 +18,64 @@ Module.register("MMM-MyCalendar", {
   },
 
   getData: function () {
-    var self = this;
-    var url = this.config.calendarUrl;  // Direkter Zugriff auf den Dateipfad
+    const url = this.config.calendarUrl;
     if (url === "") {
       Log.error("Calendar URL is not configured.");
       return;
     }
-  
-    self.sendSocketNotification("GET_CALENDAR_DATA", { url: url });
+    this.sendSocketNotification("GET_CALENDAR_DATA", { url: url });
   },
-  
+
   getDom: function () {
-    var wrapper = document.createElement("div");
+    const wrapper = document.createElement("div");
 
     if (!this.calendarData) {
       wrapper.innerHTML = "Loading calendar...";
       return wrapper;
     }
 
-    var calendarWrapper = document.createElement("div");
+    const calendarWrapper = document.createElement("div");
     calendarWrapper.className = "calendarWrapper";
 
-    // Aktueller Zeitpunkt
     const now = new Date();
 
-    // Filtere nur die Ereignisse, die in der Zukunft liegen, und sortiere sie nach Datum
-    let futureEvents = this.calendarData
-      .filter(event => new Date(event.startTime) > now)  // Nur zukünftige Events
-      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))  // Nach Startzeit sortieren
-      .slice(0, this.config.maximumEntries);  // Nur die ersten 4 Events
+    // Filtere nur zukünftige Ereignisse und sortiere sie nach Startdatum
+    const futureEvents = this.calendarData
+      .filter(event => new Date(event.startTime) > now)       // Nur zukünftige Events
+      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime)) // Nach Startzeit sortieren
+      .slice(0, this.config.maximumEntries);                  // Zeige nur die ersten 4 Events
 
-    // Zeige nur die nächsten 4 zukünftigen Ereignisse an
-    futureEvents.forEach((event) => {
-      var eventElement = document.createElement("div");
+    // Erstelle die Anzeige für jedes zukünftige Event
+    futureEvents.forEach(event => {
+      const eventElement = document.createElement("div");
       eventElement.className = "calendarEvent";
+      eventElement.style.display = "flex";  // Icon und Titel in einer Reihe
+      eventElement.style.alignItems = "center";
 
       // Icon basierend auf der Kategorie hinzufügen
-      var icon = document.createElement("span");
-      icon.className = this.getEventIcon(event.description); // Kategorie in der Beschreibung
+      const icon = document.createElement("span");
+      icon.className = this.getEventIcon(event.description); 
       eventElement.appendChild(icon);
 
-      var eventTitle = document.createElement("div");
+      // Event-Titel und Zeit hinzufügen
+      const eventDetails = document.createElement("div");
+      eventDetails.className = "eventDetails";
+      eventDetails.style.marginLeft = "10px"; // Abstand zwischen Icon und Text
+
+      // Event-Titel
+      const eventTitle = document.createElement("div");
       eventTitle.className = "eventTitle";
       eventTitle.innerHTML = event.title;
-      eventElement.appendChild(eventTitle);
+      eventDetails.appendChild(eventTitle);
 
-      var eventTime = document.createElement("div");
+      // Event-Datum und Uhrzeit (nur Startdatum und Uhrzeit anzeigen)
+      const eventTime = document.createElement("div");
       eventTime.className = "eventTime";
-      eventTime.innerHTML = event.startTime + " - " + event.endTime;
-      eventElement.appendChild(eventTime);
+      const eventStartTime = new Date(event.startTime);
+      eventTime.innerHTML = `${eventStartTime.toLocaleDateString()} ${eventStartTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      eventDetails.appendChild(eventTime);
 
+      eventElement.appendChild(eventDetails);
       calendarWrapper.appendChild(eventElement);
     });
 
@@ -83,34 +91,33 @@ Module.register("MMM-MyCalendar", {
   },
 
   scheduleUpdate: function () {
-    var self = this;
-    setInterval(function () {
-      self.getData();
+    setInterval(() => {
+      this.getData();
     }, this.config.updateInterval);
   },
 
   // Funktion zum Abrufen des passenden Icons basierend auf der Kategorie in der Beschreibung
   getEventIcon: function (eventDescription) {
     if (eventDescription.includes("Category: meet friends")) {
-      return "fas fa-users"; // Icon für Treffen mit Freunden
+      return "fas fa-users";           // Icon für Treffen mit Freunden
     } else if (eventDescription.includes("Category: holidays")) {
-      return "fas fa-umbrella-beach"; // Icon für Urlaub
+      return "fas fa-umbrella-beach";  // Icon für Urlaub
     } else if (eventDescription.includes("Category: family")) {
-      return "fas fa-home"; // Icon für Familienveranstaltungen
+      return "fas fa-home";            // Icon für Familienveranstaltungen
     } else if (eventDescription.includes("Category: studium")) {
-      return "fas fa-book"; // Icon für Studium
+      return "fas fa-book";            // Icon für Studium
     } else if (eventDescription.includes("Category: andere Termine")) {
-      return "fas fa-calendar-alt"; // Icon für andere Termine
+      return "fas fa-calendar-alt";    // Icon für andere Termine
     } else if (eventDescription.includes("Category: Geburtstage")) {
-      return "fas fa-birthday-cake"; // Icon für Geburtstage
+      return "fas fa-birthday-cake";   // Icon für Geburtstage
     } else if (eventDescription.includes("Category: arzt")) {
-      return "fas fa-stethoscope"; // Icon für Arzttermine
+      return "fas fa-stethoscope";     // Icon für Arzttermine
     } else if (eventDescription.includes("Category: Verbindung")) {
-      return "fas fa-network-wired"; // Icon für Verbindungen
+      return "fas fa-network-wired";   // Icon für Verbindungen
     } else if (eventDescription.includes("Category: Arbeit")) {
-      return "fas fa-briefcase"; // Icon für Arbeit
+      return "fas fa-briefcase";       // Icon für Arbeit
     } else {
-      return "fas fa-calendar-alt"; // Standard-Icon
+      return "fas fa-calendar-alt";    // Standard-Icon
     }
   }
 });
