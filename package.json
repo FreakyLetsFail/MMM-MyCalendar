@@ -4,9 +4,9 @@
   "description": "A MagicMirror module for displaying calendar events",
   "main": "MMM-MyCalendar.js",
   "dependencies": {
-    "ical": "^0.7.0",  // Beispiel: Version anpassen oder leer lassen für die neuste Version
-    "request": "^2.88.2"  // Falls andere Pakete wie 'request' benötigt werden
-  },
+    "ical": "^0.7.0",  
+    "request": "^2.88.2", 
+    
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
