@@ -18,14 +18,15 @@ Module.register("MMM-MyCalendar", {
 
   getData: function () {
     var self = this;
-    var url = this.config.calendarUrl;
+    var url = this.config.calendarUrl;  // Direkter Zugriff auf den Dateipfad
     if (url === "") {
       Log.error("Calendar URL is not configured.");
       return;
     }
-
+  
     self.sendSocketNotification("GET_CALENDAR_DATA", { url: url });
-  },
+  }
+  
 
   getDom: function () {
     var wrapper = document.createElement("div");

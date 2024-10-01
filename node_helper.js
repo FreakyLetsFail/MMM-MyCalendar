@@ -1,6 +1,5 @@
-var NodeHelper = require("node_helper");
+const fs = require("fs");
 const ical = require("ical");
-const axios = require("axios");
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -13,40 +12,37 @@ module.exports = NodeHelper.create({
     }
   },
 
-  getCalendarData: function (url) {
+  getCalendarData: function (filePath) {
     var self = this;
-
-    // Lade die Daten von der Kalender-URL herunter
-    axios.get(url)
-      .then((response) => {
-        const calendarData = ical.parseICS(response.data); // Parse die ICS-Daten
-        const events = self.formatCalendarData(calendarData);
-        self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
-      })
-      .catch((error) => {
-        console.error("Error fetching calendar data: ", error);
-      });
+    
+    // Verwende fs, um die Datei direkt vom Dateisystem zu lesen
+    fs.readFile(filePath, "utf8", (err, data) => {
+      if (err) {
+        console.error("Error reading calendar file: ", err);
+        return;
+      }
+      
+      const calendarData = ical.parseICS(data);  // Parse die ICS-Daten
+      const events = self.formatCalendarData(calendarData);  // Ereignisse formatieren
+      self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
+    });
   },
 
   formatCalendarData: function (calendarData) {
     const events = [];
-
+    
     for (const k in calendarData) {
       const event = calendarData[k];
       if (event.type === "VEVENT") {
         events.push({
           title: event.summary,
-          startTime: this.formatTime(event.start),
-          endTime: this.formatTime(event.end)
+          startTime: event.start.toLocaleString(),
+          endTime: event.end.toLocaleString(),
+          description: event.description || ""
         });
       }
     }
-
+    
     return events;
-  },
-
-  formatTime: function (dateTime) {
-    const date = new Date(dateTime);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 });

@@ -1,12 +1,18 @@
 {
-  "name": "mmm-template",
+  "name": "MMM-MyCalendar",
   "version": "1.0.0",
-  "description": "[Module description]",
-  "main": "MMM-Template.js",
+  "description": "A MagicMirror module for displaying calendar events",
+  "main": "MMM-MyCalendar.js",
+  "dependencies": {
+    "ical": "^0.7.0",  // Beispiel: Version anpassen oder leer lassen für die neuste Version
+    "request": "^2.88.2"  // Falls andere Pakete wie 'request' benötigt werden
+  },
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "npm run lint"
+    "test": "npm run lint",
+    "start": "node MMM-MyCalendar.js"
+
   },
   "repository": {
     "type": "git",
@@ -15,7 +21,7 @@
   "keywords": [
     "template"
   ],
-  "author": "[Author]",
+  "author": "FreakyLetsFail",
   "license": "MIT",
   "bugs": {
     "url": "[GitHub url]/issues"
