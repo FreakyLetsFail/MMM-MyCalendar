@@ -36,19 +36,16 @@ def download_and_combine_calendars():
             for event in calendar.events:
                 # Filtere nur zukünftige Ereignisse
                 if event.begin > now:
-                    # Formatiere das Datum im gewünschten Format (z.B. DD/MM/YYYY)
-                    event.begin = arrow.get(event.begin).format("DD/MM/YYYY HH:mm")
-                    event.end = arrow.get(event.end).format("DD/MM/YYYY HH:mm")
-                    
-                    # Füge die Kategorie als Beschreibung hinzu
-                    event.description = f"Category: {category}"
+                    # Füge die Kategorie und das formatierte Datum als Beschreibung hinzu
+                    formatted_date = event.begin.format("DD/MM/YYYY HH:mm")
+                    event.description = f"Category: {category}\nDate: {formatted_date}"
                     combined_calendar.events.add(event)
         else:
             print(f"Fehler beim Abrufen der URL: {https_url}")
 
     # Speichern der kombinierten Kalenderdatei
     with open(output_file, "w") as f:
-        f.write(str(combined_calendar))
+        f.writelines(combined_calendar)
 
 # Funktion wird ausgeführt
 if __name__ == "__main__":
