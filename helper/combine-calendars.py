@@ -1,6 +1,6 @@
 import requests
 from ics import Calendar
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Liste der Webcal-URLs und zugehörige Kategorien
 calendars = {
@@ -21,7 +21,7 @@ output_file = "calendar_combined.ics"  # Pfad anpassen
 # Funktion zum Herunterladen und Kombinieren der Kalenderdaten
 def download_and_combine_calendars():
     combined_calendar = Calendar()
-    now = datetime.now()  # Aktueller Zeitpunkt
+    now = datetime.now(timezone.utc)  # Aktueller Zeitpunkt, zeitzonenbewusst
 
     for url, category in calendars.items():
         # Ersetze webcal:// durch https://

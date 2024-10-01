@@ -1,53 +1,36 @@
-.calendarWrapper {
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 10px;
-  border-radius: 8px;
-  max-width: 400px;
-  font-family: 'Roboto', sans-serif;
-  color: #fff;
-}
-
-.calendarEvent {
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-}
-
-.eventDetails {
+/* Kalender Modul | Anpassung an den OnSpotify Stil */
+.MMM-MyCalendar .calendarWrapper {
   display: flex;
   flex-direction: column;
+  gap: 1em; /* Abstand zwischen den Kalendereinträgen */
+  color: var(--ONSP-INTERNAL-COLOR-MUTED); /* Ähnliche Farbpalette wie Spotify */
+  font-size: 1.1em;
 }
 
-.eventTitle {
-  font-size: 18px;
+.MMM-MyCalendar .calendarEvent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5em;
+  border-bottom: 1px solid var(--ONSP-INTERNAL-PLAYER-COLOR-PROGRESS-BG);
+  transition: background-color 0.3s ease;
+}
+
+.MMM-MyCalendar .calendarEvent:hover {
+  background-color: var(--ONSP-VIBRANT-LIGHTMUTED);
+}
+
+.MMM-MyCalendar .eventTitle {
   font-weight: bold;
+  color: var(--ONSP-INTERNAL-COLOR-BRIGHT); /* Farbe für Titel */
 }
 
-.eventTime {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
+.MMM-MyCalendar .eventTime {
+  color: var(--ONSP-INTERNAL-COLOR-MUTED); /* Zeitangaben in abgedunkelter Farbe */
+  font-size: 0.9em;
 }
 
-.calendarEvent .fas {
-  font-size: 20px;
-  color: #1db954; /* Icon-Farbe (ähnlich wie Spotify-Grün) */
+.MMM-MyCalendar .calendarEvent .fas {
+  margin-right: 0.5em;
+  color: var(--ONSP-BRANDCOLOR-SPOTIFY); /* Icons in der Spotify-Grünfarbe */
 }
-
-  
-  @media screen and (max-width: 500px) {
-    /* Anpassungen für kleinere Bildschirme */
-    .calendarWrapper {
-      max-width: 100%; /* Volle Breite für mobile Geräte */
-    }
-  
-    .eventTitle {
-      font-size: 18px; /* Kleinere Schriftgröße für Titel */
-    }
-  
-    .eventTime {
-      font-size: 14px; /* Kleinere Schriftgröße für Zeit */
-    }
-  }
-  
-  
