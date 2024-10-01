@@ -1,5 +1,6 @@
 import requests
 from ics import Calendar
+from datetime import datetime
 
 # Liste der Webcal-URLs und zugehörige Kategorien
 calendars = {
@@ -15,12 +16,13 @@ calendars = {
 }
 
 # Speicherort für die kombinierte Kalenderdatei
-output_file = "/path/to/your/calendar_combined.ics"  # Pfad anpassen
+output_file = "calendar_combined.ics"  # Pfad anpassen
 
 # Funktion zum Herunterladen und Kombinieren der Kalenderdaten
 def download_and_combine_calendars():
     combined_calendar = Calendar()
-    
+    now = datetime.now()  # Aktueller Zeitpunkt
+
     for url, category in calendars.items():
         # Ersetze webcal:// durch https://
         https_url = url.replace("webcal://", "https://")
@@ -28,9 +30,11 @@ def download_and_combine_calendars():
         if response.status_code == 200:
             calendar = Calendar(response.text)
             for event in calendar.events:
-                # Füge die Kategorie als Beschreibung hinzu (oder benutze ein anderes Feld)
-                event.description = f"Category: {category}"
-                combined_calendar.events.add(event)
+                # Filtere nur zukünftige Ereignisse
+                if event.begin > now:
+                    # Füge die Kategorie als Beschreibung hinzu (oder benutze ein anderes Feld)
+                    event.description = f"Category: {category}"
+                    combined_calendar.events.add(event)
         else:
             print(f"Fehler beim Abrufen der URL: {https_url}")
     
