@@ -6,7 +6,8 @@ Module.register("MMM-MyCalendar", {
   defaults: {
     calendarUrl: "", // URL zu deiner kombinierten .ics-Datei
     updateInterval: 60 * 60 * 1000, // Aktualisierung alle 60 Minuten
-    fadeSpeed: 4000
+    fadeSpeed: 4000,
+    maximumEntries: 4  // Maximale Anzahl der angezeigten Einträge
   },
 
   start: function () {
@@ -27,7 +28,6 @@ Module.register("MMM-MyCalendar", {
     self.sendSocketNotification("GET_CALENDAR_DATA", { url: url });
   },
   
-
   getDom: function () {
     var wrapper = document.createElement("div");
 
@@ -39,7 +39,17 @@ Module.register("MMM-MyCalendar", {
     var calendarWrapper = document.createElement("div");
     calendarWrapper.className = "calendarWrapper";
 
-    this.calendarData.forEach((event) => {
+    // Aktueller Zeitpunkt
+    const now = new Date();
+
+    // Filtere nur die Ereignisse, die in der Zukunft liegen, und sortiere sie nach Datum
+    let futureEvents = this.calendarData
+      .filter(event => new Date(event.startTime) > now)  // Nur zukünftige Events
+      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))  // Nach Startzeit sortieren
+      .slice(0, this.config.maximumEntries);  // Nur die ersten 4 Events
+
+    // Zeige nur die nächsten 4 zukünftigen Ereignisse an
+    futureEvents.forEach((event) => {
       var eventElement = document.createElement("div");
       eventElement.className = "calendarEvent";
 
