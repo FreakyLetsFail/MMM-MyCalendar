@@ -1,5 +1,6 @@
+const NodeHelper = require("node_helper");
+const ical = require("ical");  // Verwende das 'ical'-Modul, um die ICS-Daten zu verarbeiten
 const fs = require("fs");
-const ical = require("ical");
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -14,25 +15,28 @@ module.exports = NodeHelper.create({
 
   getCalendarData: function (filePath) {
     var self = this;
-    
-    // Verwende fs, um die Datei direkt vom Dateisystem zu lesen
+
+    // Lese die .ics-Datei direkt vom Dateisystem
     fs.readFile(filePath, "utf8", (err, data) => {
       if (err) {
         console.error("Error reading calendar file: ", err);
         return;
       }
-      
-      const calendarData = ical.parseICS(data);  // Parse die ICS-Daten
-      const events = self.formatCalendarData(calendarData);  // Ereignisse formatieren
+
+      // ICS-Daten parsen
+      const calendarData = ical.parseICS(data);
+
+      // Formatierte Ereignisdaten zurückschicken
+      const events = self.formatCalendarData(calendarData);
       self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
     });
   },
 
   formatCalendarData: function (calendarData) {
     const events = [];
-    
-    for (const k in calendarData) {
-      const event = calendarData[k];
+
+    for (const key in calendarData) {
+      const event = calendarData[key];
       if (event.type === "VEVENT") {
         events.push({
           title: event.summary,
@@ -42,7 +46,7 @@ module.exports = NodeHelper.create({
         });
       }
     }
-    
+
     return events;
   }
 });
