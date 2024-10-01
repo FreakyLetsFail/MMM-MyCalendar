@@ -13,7 +13,6 @@ calendars = {
     "webcal://p110-caldav.icloud.com/published/2/MTExMjU1Nzg2NTIxMTEyNc0NpoBBzDB_3O-5fAIlGT7ciY0nak4zfbqohcMUSQox-F1bi40eZ_QwzBBx4OnUjebZ1YFxmW0VoPZN1TNJ4Zk": "arzt",
     "webcal://p110-caldav.icloud.com/published/2/MTExMjU1Nzg2NTIxMTEyNc0NpoBBzDB_3O-5fAIlGT5rR6SF8dzOQLD-cGNH4_-jf0n4SevNnFs2y4Ztg2dYlZCwN2-yKnIeUD0tJAwwgsI": "Verbindung",
     "webcal://p110-caldav.icloud.com/published/2/MTExMjU1Nzg2NTIxMTEyNc0NpoBBzDB_3O-5fAIlGT6Z5NrmBEbGyvdzH9yWg1_kjMDXfdmGQO9dQAEb_vXI_HhZbCSdtoh-sklWvTgvl0c": "Arbeit"
-
 }
 
 # Speicherort für die kombinierte Kalenderdatei
@@ -37,6 +36,10 @@ def download_and_combine_calendars():
             for event in calendar.events:
                 # Filtere nur zukünftige Ereignisse
                 if event.begin > now:
+                    # Formatiere das Datum im gewünschten Format (z.B. DD/MM/YYYY)
+                    event.begin = arrow.get(event.begin).format("DD/MM/YYYY HH:mm")
+                    event.end = arrow.get(event.end).format("DD/MM/YYYY HH:mm")
+                    
                     # Füge die Kategorie als Beschreibung hinzu
                     event.description = f"Category: {category}"
                     combined_calendar.events.add(event)

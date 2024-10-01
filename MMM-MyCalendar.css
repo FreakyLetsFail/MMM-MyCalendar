@@ -1,36 +1,116 @@
-/* Kalender Modul | Anpassung an den OnSpotify Stil */
-.MMM-MyCalendar .calendarWrapper {
+/* MMM-MyCalendar | Anpassung an den OnSpotify Stil */
+.MMM-MyCalendar {
+  display: flex;
+  justify-content: center;
+  font-size: var(--ONSP-INTERNAL-PLAYER-FONT-BASE);
+}
+
+.MMM-MyCalendar .ONSP-Base {
+  /* Verwende die gleichen Styles wie in OnSpotify */
+}
+
+.MMM-MyCalendar .player {
   display: flex;
   flex-direction: column;
-  gap: 1em; /* Abstand zwischen den Kalendereinträgen */
-  color: var(--ONSP-INTERNAL-COLOR-MUTED); /* Ähnliche Farbpalette wie Spotify */
-  font-size: 1.1em;
+  position: relative;
+  width: var(--ONSP-INTERNAL-PLAYER-SIZE-WIDTH);
+  animation: var(--ONSP-INTERNAL-LOWPOWER-FADEIN) var(--ONSP-INTERNAL-PLAYER-TRANSITION-TIME);
+  text-align: left;
+  gap: var(--ONSP-INTERNAL-PLAYER-GAP);
+  z-index: 1;
 }
 
-.MMM-MyCalendar .calendarEvent {
+.MMM-MyCalendar .player .header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0.5em;
+  padding-bottom: 0.04em;
+}
+
+.MMM-MyCalendar .player .header .visual {
+  background-color: var(--ONSP-INTERNAL-PLAYER-COLOR-TITLE);
+  width: 0.08em;
+  border-radius: 1em;
+}
+
+.MMM-MyCalendar .player .header .names {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.MMM-MyCalendar .player .header .names .title {
+  display: flex;
   align-items: center;
-  padding: 0.5em;
-  border-bottom: 1px solid var(--ONSP-INTERNAL-PLAYER-COLOR-PROGRESS-BG);
-  transition: background-color 0.3s ease;
-}
-
-.MMM-MyCalendar .calendarEvent:hover {
-  background-color: var(--ONSP-VIBRANT-LIGHTMUTED);
-}
-
-.MMM-MyCalendar .eventTitle {
+  font-size: 1.25em;
   font-weight: bold;
-  color: var(--ONSP-INTERNAL-COLOR-BRIGHT); /* Farbe für Titel */
+  color: var(--ONSP-INTERNAL-PLAYER-COLOR-TITLE);
+  margin-bottom: -0.16em;
+  margin-top: -0.1em;
 }
 
-.MMM-MyCalendar .eventTime {
-  color: var(--ONSP-INTERNAL-COLOR-MUTED); /* Zeitangaben in abgedunkelter Farbe */
+.MMM-MyCalendar .player .header .names .subtitle {
+  display: flex;
+  align-items: center;
   font-size: 0.9em;
+  padding-left: 0.04em;
+  color: var(--ONSP-INTERNAL-PLAYER-COLOR-TITLE);
+  font-weight: 100;
+  margin-top: -0.16em;
+  margin-bottom: -0.1em;
 }
 
-.MMM-MyCalendar .calendarEvent .fas {
-  margin-right: 0.5em;
-  color: var(--ONSP-BRANDCOLOR-SPOTIFY); /* Icons in der Spotify-Grünfarbe */
+.MMM-MyCalendar .player .swappable {
+  min-height: var(--ONSP-INTERNAL-PLAYER-SIZE-WIDTH);
+  height: var(--ONSP-INTERNAL-PLAYER-SIZE-WIDTH);
+  display: block;
+  position: relative;
+  width: var(--ONSP-INTERNAL-PLAYER-SIZE-WIDTH);
+  overflow: hidden;
+  border-radius: var(--ONSP-INTERNAL-PLAYER-MEDIA-CORNERS);
 }
+
+.MMM-MyCalendar .player .swappable .media {
+  width: 100%;
+  opacity: 0;
+  z-index: 0;
+  transition: opacity var(--ONSP-INTERNAL-COVER-FADE-TIME) var(--ONSP-INTERNAL-COVER-FADE-EASING);
+  position: absolute;
+  border-radius: var(--ONSP-INTERNAL-PLAYER-MEDIA-CORNERS);
+  overflow: hidden;
+}
+
+.MMM-MyCalendar .player .swappable .top {
+  opacity: 1;
+  z-index: 10;
+  /* Füge die Icon-Klasse hinzu */
+  font-size: 5em; /* Größe des Icons anpassen */
+  text-align: center;
+  color: var(--ONSP-INTERNAL-COLOR-MUTED);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+:root {
+  /* CSS-Variablen aus MMM-OnSpotify */
+  --ONSP-INTERNAL-PLAYER-FONT-BASE: inherit;
+  --ONSP-INTERNAL-PLAYER-SIZE-WIDTH: 15em;
+  --ONSP-INTERNAL-LOWPOWER-FADEIN: none;
+  --ONSP-INTERNAL-PLAYER-TRANSITION-TIME: 1500ms;
+  --ONSP-INTERNAL-PLAYER-GAP: 0.5em;
+  --ONSP-INTERNAL-PLAYER-COLOR-TITLE: #FFF;
+  --ONSP-INTERNAL-PLAYER-MEDIA-CORNERS: 0.60em;
+  --ONSP-INTERNAL-COVER-FADE-TIME: 2500ms;
+  --ONSP-INTERNAL-COVER-FADE-EASING: cubic-bezier(.23,1.12,.95,.9);
+  --ONSP-INTERNAL-COLOR-MUTED: #b9b9b9;
+  /* Weitere Variablen nach Bedarf */
+}
+
+/* Optional: Weitere Anpassungen, falls notwendig */

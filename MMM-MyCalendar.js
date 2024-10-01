@@ -1,6 +1,4 @@
-/* Magic Mirror
- * Module: MMM-MyCalendar
- */
+/* MMM-MyCalendar.js */
 
 Module.register("MMM-MyCalendar", {
   defaults: {
@@ -34,9 +32,6 @@ Module.register("MMM-MyCalendar", {
       return wrapper;
     }
 
-    const calendarWrapper = document.createElement("div");
-    calendarWrapper.className = "calendarWrapper";
-
     const now = new Date();
 
     // Filtere nur zukünftige Ereignisse und sortiere sie nach Startdatum
@@ -45,41 +40,64 @@ Module.register("MMM-MyCalendar", {
       .sort((a, b) => new Date(a.startTime) - new Date(b.startTime)) // Nach Startzeit sortieren
       .slice(0, this.config.maximumEntries);                  // Zeige nur die ersten 4 Events
 
-    // Erstelle die Anzeige für jedes zukünftige Event
+    // Hauptcontainer im Stil von MMM-OnSpotify
+    const baseContainer = document.createElement("div");
+    baseContainer.className = "ONSP-Base"; // Verwende die gleiche Basis-Klasse
+
     futureEvents.forEach(event => {
-      const eventElement = document.createElement("div");
-      eventElement.className = "calendarEvent";
-      eventElement.style.display = "flex";  // Icon und Titel in einer Reihe
-      eventElement.style.alignItems = "center";
+      // 'player' Div für jeden Kalendereintrag
+      const playerDiv = document.createElement("div");
+      playerDiv.className = "player";
 
-      // Icon basierend auf der Kategorie hinzufügen
-      const icon = document.createElement("span");
-      icon.className = this.getEventIcon(event.description); 
-      eventElement.appendChild(icon);
+      // 'header' Div
+      const headerDiv = document.createElement("div");
+      headerDiv.className = "header";
 
-      // Event-Titel und Zeit hinzufügen
-      const eventDetails = document.createElement("div");
-      eventDetails.className = "eventDetails";
-      eventDetails.style.marginLeft = "10px"; // Abstand zwischen Icon und Text
+      // 'visual' Div (eventuell für ein visuelles Element oder eine Linie)
+      const visualDiv = document.createElement("div");
+      visualDiv.className = "visual";
 
-      // Event-Titel
-      const eventTitle = document.createElement("div");
-      eventTitle.className = "eventTitle";
-      eventTitle.innerHTML = event.title;
-      eventDetails.appendChild(eventTitle);
+      // 'names' Div
+      const namesDiv = document.createElement("div");
+      namesDiv.className = "names";
 
-      // Event-Datum und Uhrzeit (nur Startdatum und Uhrzeit anzeigen)
-      const eventTime = document.createElement("div");
-      eventTime.className = "eventTime";
+      // 'title' Div
+      const titleDiv = document.createElement("div");
+      titleDiv.className = "title";
+      titleDiv.innerHTML = event.title;
+
+      // 'subtitle' Div
+      const subtitleDiv = document.createElement("div");
+      subtitleDiv.className = "subtitle";
       const eventStartTime = new Date(event.startTime);
-      eventTime.innerHTML = `${eventStartTime.toLocaleDateString()} ${eventStartTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-      eventDetails.appendChild(eventTime);
+      subtitleDiv.innerHTML = `${eventStartTime.toLocaleDateString()} ${eventStartTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
-      eventElement.appendChild(eventDetails);
-      calendarWrapper.appendChild(eventElement);
+      // Füge 'title' und 'subtitle' zu 'names' hinzu
+      namesDiv.appendChild(titleDiv);
+      namesDiv.appendChild(subtitleDiv);
+
+      // Füge 'visual' und 'names' zu 'header' hinzu
+      headerDiv.appendChild(visualDiv);
+      headerDiv.appendChild(namesDiv);
+
+      // 'swappable' Div (für das Icon)
+      const swappableDiv = document.createElement("div");
+      swappableDiv.className = "swappable";
+
+      // Icon hinzufügen
+      const iconSpan = document.createElement("span");
+      iconSpan.className = this.getEventIcon(event.description) + " media top";
+      swappableDiv.appendChild(iconSpan);
+
+      // Füge alle Teile zum 'player' Div hinzu
+      playerDiv.appendChild(headerDiv);
+      playerDiv.appendChild(swappableDiv);
+
+      // Füge das 'player' Div zum Hauptcontainer hinzu
+      baseContainer.appendChild(playerDiv);
     });
 
-    wrapper.appendChild(calendarWrapper);
+    wrapper.appendChild(baseContainer);
     return wrapper;
   },
 
