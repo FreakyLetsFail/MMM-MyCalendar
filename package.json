@@ -5,14 +5,13 @@
   "main": "MMM-MyCalendar.js",
   "dependencies": {
     "ical": "^0.7.0",  
-    "request": "^2.88.2", 
-    
+    "request": "^2.88.2"
+  },
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "npm run lint",
     "start": "node MMM-MyCalendar.js"
-
   },
   "repository": {
     "type": "git",
