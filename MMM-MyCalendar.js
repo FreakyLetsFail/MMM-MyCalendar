@@ -27,20 +27,27 @@ Module.register("MMM-MyCalendar", {
   getDom: function () {
     const wrapper = document.createElement("div");
 
-    console.log("Calendar Data:", this.calendarData);
-
     if (!this.calendarData) {
       wrapper.innerHTML = "Loading calendar...";
       return wrapper;
     }
 
     const now = new Date();
+    console.log("Current Time:", now);
 
     // Filtere nur zukünftige Ereignisse und sortiere sie nach Startdatum
     const futureEvents = this.calendarData
-      .filter(event => event.startTime > now)
+      .filter(event => {
+        // Sicherstellen, dass event.startTime ein Date-Objekt ist
+        if (!(event.startTime instanceof Date) || isNaN(event.startTime)) {
+          event.startTime = new Date(event.startTime);
+        }
+        return event.startTime > now;
+      })
       .sort((a, b) => a.startTime - b.startTime)
       .slice(0, this.config.maximumEntries);
+
+    console.log("Future Events:", futureEvents);
 
     // Hauptcontainer im Stil von MMM-OnSpotify
     const baseContainer = document.createElement("div");
@@ -60,7 +67,13 @@ Module.register("MMM-MyCalendar", {
 
       // Falls kein formatiertes Datum vorhanden ist, formatieren wir es hier
       if (!formattedDate) {
-        formattedDate = event.startTime.toLocaleString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        formattedDate = event.startTime.toLocaleString([], {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
       }
 
       // 'player' Div
@@ -122,6 +135,17 @@ Module.register("MMM-MyCalendar", {
   socketNotificationReceived: function (notification, payload) {
     if (notification === "CALENDAR_DATA_RECEIVED") {
       this.calendarData = payload;
+
+      // Konvertiere startTime und endTime in Date-Objekte, falls nötig
+      this.calendarData.forEach(event => {
+        if (!(event.startTime instanceof Date)) {
+          event.startTime = new Date(event.startTime);
+        }
+        if (!(event.endTime instanceof Date)) {
+          event.endTime = new Date(event.endTime);
+        }
+      });
+
       this.updateDom(this.config.fadeSpeed);
     }
   },

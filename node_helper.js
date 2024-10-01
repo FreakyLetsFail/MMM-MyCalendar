@@ -38,10 +38,13 @@ module.exports = NodeHelper.create({
     for (const key in calendarData) {
       const event = calendarData[key];
       if (event.type === "VEVENT") {
+        console.log("Event Start:", event.start);
+        console.log("Event End:", event.end);
+        console.log("Event Description:", event.description);
         events.push({
           title: event.summary,
-          startTime: event.start, // Speichere als Date-Objekt
-          endTime: event.end,     // Speichere als Date-Objekt
+          startTime: new Date(event.start), // Konvertiere zu Date-Objekt
+          endTime: new Date(event.end),     // Konvertiere zu Date-Objekt
           description: event.description || ""
         });
       }
