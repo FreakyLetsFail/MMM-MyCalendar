@@ -1,6 +1,6 @@
 import requests
 from ics import Calendar
-from datetime import datetime, timezone
+import arrow
 
 # Liste der Webcal-URLs und zugehörige Kategorien
 calendars = {
@@ -13,6 +13,7 @@ calendars = {
     "webcal://p110-caldav.icloud.com/published/2/MTExMjU1Nzg2NTIxMTEyNc0NpoBBzDB_3O-5fAIlGT7ciY0nak4zfbqohcMUSQox-F1bi40eZ_QwzBBx4OnUjebZ1YFxmW0VoPZN1TNJ4Zk": "arzt",
     "webcal://p110-caldav.icloud.com/published/2/MTExMjU1Nzg2NTIxMTEyNc0NpoBBzDB_3O-5fAIlGT5rR6SF8dzOQLD-cGNH4_-jf0n4SevNnFs2y4Ztg2dYlZCwN2-yKnIeUD0tJAwwgsI": "Verbindung",
     "webcal://p110-caldav.icloud.com/published/2/MTExMjU1Nzg2NTIxMTEyNc0NpoBBzDB_3O-5fAIlGT6Z5NrmBEbGyvdzH9yWg1_kjMDXfdmGQO9dQAEb_vXI_HhZbCSdtoh-sklWvTgvl0c": "Arbeit"
+
 }
 
 # Speicherort für die kombinierte Kalenderdatei
@@ -21,23 +22,27 @@ output_file = "calendar_combined.ics"  # Pfad anpassen
 # Funktion zum Herunterladen und Kombinieren der Kalenderdaten
 def download_and_combine_calendars():
     combined_calendar = Calendar()
-    now = datetime.now(timezone.utc)  # Aktueller Zeitpunkt, zeitzonenbewusst
+    now = arrow.now()
 
     for url, category in calendars.items():
         # Ersetze webcal:// durch https://
         https_url = url.replace("webcal://", "https://")
         response = requests.get(https_url)
         if response.status_code == 200:
-            calendar = Calendar(response.text)
+            try:
+                calendar = Calendar(response.text)
+            except Exception as e:
+                print(f"Fehler beim Parsen des Kalenders von URL {https_url}: {e}")
+                continue
             for event in calendar.events:
                 # Filtere nur zukünftige Ereignisse
                 if event.begin > now:
-                    # Füge die Kategorie als Beschreibung hinzu (oder benutze ein anderes Feld)
+                    # Füge die Kategorie als Beschreibung hinzu
                     event.description = f"Category: {category}"
                     combined_calendar.events.add(event)
         else:
             print(f"Fehler beim Abrufen der URL: {https_url}")
-    
+
     # Speichern der kombinierten Kalenderdatei
     with open(output_file, "w") as f:
         f.write(str(combined_calendar))
