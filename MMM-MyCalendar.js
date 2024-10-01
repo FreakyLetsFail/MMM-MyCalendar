@@ -27,6 +27,8 @@ Module.register("MMM-MyCalendar", {
   getDom: function () {
     const wrapper = document.createElement("div");
 
+    console.log("Calendar Data:", this.calendarData);
+
     if (!this.calendarData) {
       wrapper.innerHTML = "Loading calendar...";
       return wrapper;
