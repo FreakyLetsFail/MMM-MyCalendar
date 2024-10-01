@@ -1,36 +1,43 @@
-/* Global styles for the calendar module */
 .calendarWrapper {
-    background-color: rgba(0, 0, 0, 0.7); /* Halbtransparenter Hintergrund */
-    border-radius: 10px; /* Abgerundete Ecken */
-    padding: 15px; /* Innenabstand */
-    margin: 10px; /* Außenabstand */
-    max-width: 400px; /* Maximale Breite */
-    font-family: 'Roboto', sans-serif; /* Minimalistische, moderne Schrift */
-    color: #fff; /* Heller Text für guten Kontrast */
-    text-align: left; /* Linksbündiger Text */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Leichter Schatten für den Tiefeneffekt */
-  }
-  
-  .calendarEvent {
-    padding: 10px 0; /* Abstände zwischen den Ereignissen */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Dünne, halbtransparente Trennlinie */
-  }
-  
-  .calendarEvent:last-child {
-    border-bottom: none; /* Keine Trennlinie für das letzte Ereignis */
-  }
-  
-  .eventTitle {
-    font-size: 20px; /* Schriftgröße des Titels */
-    font-weight: bold; /* Fettschrift für Titel */
-    color: #1db954; /* Grüne Farbe, ähnlich dem Spotify-Grün */
-  }
-  
-  .eventTime {
-    font-size: 16px; /* Kleinere Schriftgröße für Zeitangaben */
-    color: rgba(255, 255, 255, 0.7); /* Leicht transparent für weniger Gewicht */
-    margin-top: 5px; /* Abstand oberhalb der Zeitangabe */
-  }
+  background-color: rgba(0, 0, 0, 0.7); /* Halbtransparenter Hintergrund */
+  border-radius: 10px; /* Abgerundete Ecken */
+  padding: 15px; /* Innenabstand */
+  margin: 10px; /* Außenabstand */
+  max-width: 400px; /* Maximale Breite */
+  font-family: 'Roboto', sans-serif; /* Minimalistische, moderne Schrift */
+  color: #fff; /* Heller Text für guten Kontrast */
+  text-align: left; /* Linksbündiger Text */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Leichter Schatten für den Tiefeneffekt */
+}
+
+.calendarEvent {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3); /* Dünne, halbtransparente Trennlinie */
+  display: flex;
+  align-items: center;
+}
+
+.calendarEvent:last-child {
+  border-bottom: none;
+}
+
+.eventTitle {
+  font-size: 20px; /* Schriftgröße des Titels */
+  font-weight: bold; /* Fettschrift für Titel */
+  margin-left: 10px; /* Abstand zwischen Icon und Titel */
+}
+
+.eventTime {
+  font-size: 16px; /* Kleinere Schriftgröße für Zeitangaben */
+  color: rgba(255, 255, 255, 0.7); /* Leicht transparent für weniger Gewicht */
+  margin-top: 5px; /* Abstand oberhalb der Zeitangabe */
+}
+
+.calendarEvent .fas {
+  font-size: 24px;
+  color: #1db954; /* Spotify-Grün für die Icons */
+}
+
   
   @media screen and (max-width: 500px) {
     /* Anpassungen für kleinere Bildschirme */
@@ -46,4 +53,5 @@
       font-size: 14px; /* Kleinere Schriftgröße für Zeit */
     }
   }
+  
   
