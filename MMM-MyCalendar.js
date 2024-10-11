@@ -2,27 +2,61 @@
 
 Module.register("MMM-MyCalendar", {
   defaults: {
-    calendarUrl: "",               // URL zu Ihrer kombinierten .ics-Datei
-    updateInterval: 60 * 60 * 1000, // Aktualisierung alle 60 Minuten
+    calendarUrls: {},  // Objekt für Kalender-URLs und Kategorien
+    updateInterval: 60 * 60 * 1000,
     fadeSpeed: 4000,
-    maximumEntries: 4              // Maximale Anzahl der angezeigten Einträge
+    maximumEntries: 4,
+    defaultIcon: "fas fa-calendar-alt",
+    defaultColor: "#FFFFFF"
   },
 
   start: function () {
     Log.info("Starting module: " + this.name);
-    this.calendarData = null;
+    this.calendarData = [];
     this.getData();
     this.scheduleUpdate();
   },
 
   getData: function () {
-    const url = this.config.calendarUrl;
-    if (url === "") {
-      Log.error("Calendar URL is not configured.");
-      return;
+    this.calendarData = []; // Leere Kalenderdaten initialisieren
+    const now = new Date();
+
+    // Iteriere durch alle Kalender-URLs in der Konfiguration
+    for (const [url, category] of Object.entries(this.config.calendarUrls)) {
+      const httpsUrl = url.replace("webcal://", "https://");
+
+      // Kalenderdaten über fetch abrufen
+      fetch(httpsUrl)
+        .then(response => response.text())
+        .then(data => {
+          const calendar = new ICAL.Component(ICAL.parse(data)); // ICAL.js verwenden zum Parsen
+          const events = calendar.getAllSubcomponents("vevent");
+
+          events.forEach(event => {
+            const startTime = new Date(event.getFirstPropertyValue("dtstart"));
+            if (startTime > now) { // Nur zukünftige Ereignisse
+              const formattedDate = startTime.toLocaleString([], {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+              this.calendarData.push({
+                title: event.getFirstPropertyValue("summary"),
+                description: `Category: ${category}\nDate: ${formattedDate}`,
+                startTime: startTime
+              });
+            }
+          });
+          this.updateDom(this.config.fadeSpeed); // UI aktualisieren
+        })
+        .catch(error => {
+          Log.error(`Error fetching calendar from URL ${httpsUrl}: ${error}`);
+        });
     }
-    this.sendSocketNotification("GET_CALENDAR_DATA", { url: url });
   },
+
 
   getDom: function () {
     const wrapper = document.createElement("div");
@@ -159,50 +193,49 @@ Module.register("MMM-MyCalendar", {
   // Funktion zum Abrufen des passenden Icons basierend auf der Kategorie in der Beschreibung
   getEventIcon: function (eventDescription) {
     if (eventDescription.includes("Category: meet friends")) {
-      return "fas fa-users";           // Icon für Treffen mit Freunden
+      return "fas fa-users";
     } else if (eventDescription.includes("Category: holidays")) {
-      return "fas fa-umbrella-beach";  // Icon für Urlaub
+      return "fas fa-umbrella-beach";
     } else if (eventDescription.includes("Category: family")) {
-      return "fas fa-home";            // Icon für Familienveranstaltungen
+      return "fas fa-home";
     } else if (eventDescription.includes("Category: studium")) {
-      return "fas fa-book";            // Icon für Studium
+      return "fas fa-book";
     } else if (eventDescription.includes("Category: andere Termine")) {
-      return "fas fa-calendar-alt";    // Icon für andere Termine
+      return "fas fa-calendar-alt";
     } else if (eventDescription.includes("Category: Geburtstage")) {
-      return "fas fa-birthday-cake";   // Icon für Geburtstage
+      return "fas fa-birthday-cake";
     } else if (eventDescription.includes("Category: arzt")) {
-      return "fas fa-stethoscope";     // Icon für Arzttermine
+      return "fas fa-stethoscope";
     } else if (eventDescription.includes("Category: Verbindung")) {
-      return "fas fa-network-wired";   // Icon für Verbindungen
+      return "fas fa-network-wired";
     } else if (eventDescription.includes("Category: Arbeit")) {
-      return "fas fa-briefcase";       // Icon für Arbeit
+      return "fas fa-briefcase";
     } else {
-      return "fas fa-calendar-alt";    // Standard-Icon
+      return this.config.defaultIcon; // Verwende das Standard-Icon
     }
   },
 
-  // Funktion zum Festlegen der Farbe der Pipe basierend auf der Kategorie
   getPipeColor: function (eventDescription) {
     if (eventDescription.includes("Category: meet friends")) {
-      return "#FF6347"; // Tomatenrot
+      return "#FF6347";
     } else if (eventDescription.includes("Category: holidays")) {
-      return "#FFD700"; // Gold
+      return "#FFD700";
     } else if (eventDescription.includes("Category: family")) {
-      return "#1E90FF"; // DodgerBlue
+      return "#1E90FF";
     } else if (eventDescription.includes("Category: studium")) {
-      return "#32CD32"; // LimeGreen
+      return "#32CD32";
     } else if (eventDescription.includes("Category: andere Termine")) {
-      return "#FFFFFF"; // Weiß
+      return "#FFFFFF";
     } else if (eventDescription.includes("Category: Geburtstage")) {
-      return "#FF69B4"; // HotPink
+      return "#FF69B4";
     } else if (eventDescription.includes("Category: arzt")) {
-      return "#8A2BE2"; // BlueViolet
+      return "#8A2BE2";
     } else if (eventDescription.includes("Category: Verbindung")) {
-      return "#FF4500"; // OrangeRed
+      return "#FF4500";
     } else if (eventDescription.includes("Category: Arbeit")) {
-      return "#A52A2A"; // Braun
+      return "#A52A2A";
     } else {
-      return null; // Standardfarbe
+      return this.config.defaultColor; // Verwende die Standardfarbe
     }
   }
 });
