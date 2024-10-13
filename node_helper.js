@@ -1,6 +1,7 @@
 const NodeHelper = require("node_helper");
 const ical = require("ical");
 const https = require("https");
+const { DateTime } = require('luxon');
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -9,7 +10,7 @@ module.exports = NodeHelper.create({
 
   socketNotificationReceived: function (notification, payload) {
     if (notification === "GET_CALENDAR_DATA") {
-      this.getCalendarData(payload.urls, payload.eventSettings);
+      this.getCalendarData(payload.urls, payload.eventSettings); // Event-Einstellungen übergeben
     }
   },
 
@@ -34,16 +35,12 @@ module.exports = NodeHelper.create({
             for (const key in calendarData) {
               const event = calendarData[key];
               if (event.type === "VEVENT") {
-                // Loggen der rohen Datumswerte
-                console.log("Raw event.start:", event.start);
-                console.log("Raw event.end:", event.end);
-
-                // Direktes Parsen der Datumswerte
-                const startTime = new Date(event.start);
-                const endTime = new Date(event.end);
+                // Verwende Luxon, um die Start- und Endzeiten zu parsen
+                let startTime = self.parseEventDate(event.start);
+                let endTime = self.parseEventDate(event.end);
 
                 // Überprüfen auf gültige Datumswerte
-                if (isNaN(startTime) || isNaN(endTime)) {
+                if (!startTime || !endTime) {
                   console.error("Ungültiges Datum für Ereignis:", event.summary);
                   continue; // Überspringe dieses Ereignis
                 }
@@ -56,8 +53,8 @@ module.exports = NodeHelper.create({
 
                 events.push({
                   title: event.summary,
-                  startTime: startTime,
-                  endTime: endTime,
+                  startTime: startTime.toJSDate(),
+                  endTime: endTime.toJSDate(),
                   description: description,
                   icon: icon,
                   color: color
@@ -67,8 +64,9 @@ module.exports = NodeHelper.create({
             resolve();
           });
         }).on("error", (err) => {
-          console.error("Error fetching calendar URL: ", err);
-          reject(err);
+          console.error("Error fetching calendar URL:", httpsUrl, err);
+          // Wichtig: resolve() aufrufen, damit Promise.all nicht hängen bleibt
+          resolve();
         });
       });
     });
@@ -80,5 +78,38 @@ module.exports = NodeHelper.create({
     } catch (error) {
       console.error("Fehler beim Abrufen der Kalenderdaten:", error);
     }
+  },
+
+  // Neue Funktion zum Parsen der Ereignisdaten mit Luxon
+  parseEventDate: function (eventDate) {
+    if (!eventDate) {
+      return null;
+    }
+
+    if (eventDate instanceof Date) {
+      // Wenn es ein Date-Objekt ist, konvertiere es mit Luxon
+      return DateTime.fromJSDate(eventDate);
+    } else if (typeof eventDate === 'object') {
+      // Wenn es ein Objekt ist, das Zeitzoneninformationen enthält
+      const { tz, ical, value } = eventDate;
+      let dateTimeStr = ical || value;
+
+      if (!dateTimeStr) {
+        return null;
+      }
+
+      // Versuche, das Datum mit dem Format von iCal zu parsen
+      const format = "yyyyLLdd'T'HHmmss";
+
+      // Verwende die Zeitzone, falls verfügbar, ansonsten UTC
+      const zone = tz || 'UTC';
+
+      return DateTime.fromFormat(dateTimeStr, format, { zone: zone });
+    } else if (typeof eventDate === 'string') {
+      // Wenn es ein String ist, versuche es direkt zu parsen
+      return DateTime.fromISO(eventDate);
+    }
+
+    return null;
   }
 });
