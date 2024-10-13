@@ -1,13 +1,12 @@
 Module.register("MMM-MyCalendar", {
   defaults: {
-    calendarUrls: {},  // Object for calendar URLs and categories
-    eventSettings: {}, // Settings for icons and colors
+    calendarUrls: {},  // Objekt für Kalender-URLs und Kategorien
+    eventSettings: {}, // Einstellungen für Icons und Farben
     updateInterval: 60 * 60 * 1000,
     fadeSpeed: 4000,
-    maximumEntries: 10 // Erhöhe diesen Wert entsprechend
+    maximumEntries: 10 // Erhöhen Sie diesen Wert, um mehr Einträge anzuzeigen
   },
 
-  // Include your CSS file
   getStyles: function () {
     return ["MMM-MyCalendar.css"];
   },
@@ -15,8 +14,8 @@ Module.register("MMM-MyCalendar", {
   start: function () {
     Log.info("Starting module: " + this.name);
     this.calendarData = [];
-    this.getData();  // Load calendar data
-    this.scheduleUpdate();  // Schedule regular updates
+    this.getData();  // Kalenderdaten laden
+    this.scheduleUpdate();  // Regelmäßige Updates planen
   },
 
   getData: function () {
@@ -43,7 +42,8 @@ Module.register("MMM-MyCalendar", {
     }
 
     const now = new Date();
-    console.log("Aktuelle Zeit (now):", now);
+    const nowUTC = new Date(now.toISOString());
+    console.log("Aktuelle Zeit (nowUTC):", nowUTC);
 
     // Filtere und sortiere zukünftige Ereignisse
     const futureEvents = this.calendarData
@@ -51,9 +51,8 @@ Module.register("MMM-MyCalendar", {
         if (!(event.startTime instanceof Date) || isNaN(event.startTime)) {
           event.startTime = new Date(event.startTime);
         }
-        // Logging der Startzeit jedes Ereignisses
         console.log("Ereignis:", event.title, "Startzeit:", event.startTime);
-        return event.startTime > now;
+        return event.startTime > nowUTC;
       })
       .sort((a, b) => a.startTime - b.startTime)
       .slice(0, this.config.maximumEntries);
@@ -138,8 +137,6 @@ Module.register("MMM-MyCalendar", {
     if (notification === "CALENDAR_DATA_RECEIVED") {
       this.calendarData = payload;
       console.log("Empfangene Ereignisse vom node_helper:", this.calendarData.length);
-      // Optional: Ausgabe der Ereignisdaten
-      // console.log("Ereignisdaten:", this.calendarData);
       this.updateDom(this.config.fadeSpeed);
     }
   },
