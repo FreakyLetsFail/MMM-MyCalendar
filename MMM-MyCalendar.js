@@ -25,6 +25,14 @@ Module.register("MMM-MyCalendar", {
   getDom: function () {
     const wrapper = document.createElement("div");
 
+    // Überschrift mit einer Linie darunter
+    const header = document.createElement("h2");
+    header.innerHTML = "Upcoming Events";
+    wrapper.appendChild(header);
+
+    const separator = document.createElement("hr"); // Trennlinie
+    wrapper.appendChild(separator);
+
     if (!this.calendarData || this.calendarData.length === 0) {
       wrapper.innerHTML = "Loading calendar...";
       return wrapper;
@@ -36,7 +44,6 @@ Module.register("MMM-MyCalendar", {
     // Filtere nur zukünftige Ereignisse und sortiere sie nach Startdatum
     const futureEvents = this.calendarData
       .filter(event => {
-        // Sicherstellen, dass event.startTime ein Date-Objekt ist
         if (!(event.startTime instanceof Date) || isNaN(event.startTime)) {
           event.startTime = new Date(event.startTime);
         }
@@ -47,12 +54,11 @@ Module.register("MMM-MyCalendar", {
 
     console.log("Future Events:", futureEvents);
 
-    // Hauptcontainer im Stil von MMM-OnSpotify
+    // Hauptcontainer für Events
     const baseContainer = document.createElement("div");
-    baseContainer.className = "ONSP-Base";
+    baseContainer.className = "events-container";
 
     futureEvents.forEach(event => {
-      // Extrahiere das formatierte Datum aus der Beschreibung
       let formattedDate = "";
       const eventDescription = event.description || "";
 
@@ -63,7 +69,6 @@ Module.register("MMM-MyCalendar", {
         }
       }
 
-      // Falls kein formatiertes Datum vorhanden ist, formatieren wir es hier
       if (!formattedDate) {
         formattedDate = event.startTime.toLocaleString([], {
           day: '2-digit',
@@ -74,56 +79,41 @@ Module.register("MMM-MyCalendar", {
         });
       }
 
-      // 'player' Div
-      const playerDiv = document.createElement("div");
-      playerDiv.className = "player";
+      const eventDiv = document.createElement("div");
+      eventDiv.className = "event";
 
-      // 'header' Div
-      const headerDiv = document.createElement("div");
-      headerDiv.className = "header";
+      // Visual (Pipe) mit der Farbe
+      const visualDiv = document.createElement("div");
+      visualDiv.className = "visual";
+      visualDiv.style.backgroundColor = this.getPipeColor(eventDescription); // Pipe Farbe
 
-      // 'icon' Span (das Icon)
+      // Event-Icon rechts neben der Pipe
       const iconSpan = document.createElement("span");
       iconSpan.className = this.getEventIcon(eventDescription) + " icon";
 
-      // 'visual' Div (die Pipe)
-      const visualDiv = document.createElement("div");
-      visualDiv.className = "visual";
+      // Container für Event-Titel und Datum
+      const detailsDiv = document.createElement("div");
+      detailsDiv.className = "details";
 
-      // Setze die Farbe der Pipe basierend auf der Kategorie
-      const pipeColor = this.getPipeColor(eventDescription);
-      if (pipeColor) {
-        visualDiv.style.backgroundColor = pipeColor;
-      }
-
-      // 'names' Div
-      const namesDiv = document.createElement("div");
-      namesDiv.className = "names";
-
-      // 'title' Div
       const titleDiv = document.createElement("div");
       titleDiv.className = "title";
       titleDiv.innerHTML = event.title;
 
-      // 'subtitle' Div
       const subtitleDiv = document.createElement("div");
       subtitleDiv.className = "subtitle";
       subtitleDiv.innerHTML = formattedDate;
 
-      // Füge 'title' und 'subtitle' zu 'names' hinzu
-      namesDiv.appendChild(titleDiv);
-      namesDiv.appendChild(subtitleDiv);
+      // Füge Titel und Datum zu den Details hinzu
+      detailsDiv.appendChild(titleDiv);
+      detailsDiv.appendChild(subtitleDiv);
 
-      // Füge 'icon', 'visual' und 'names' zu 'header' hinzu
-      headerDiv.appendChild(iconSpan);
-      headerDiv.appendChild(visualDiv);
-      headerDiv.appendChild(namesDiv);
+      // Füge Visual (Pipe), Icon und Details zum Event-Div hinzu
+      eventDiv.appendChild(visualDiv);
+      eventDiv.appendChild(iconSpan);
+      eventDiv.appendChild(detailsDiv);
 
-      // Füge 'header' zu 'playerDiv' hinzu
-      playerDiv.appendChild(headerDiv);
-
-      // Füge 'playerDiv' zum Hauptcontainer hinzu
-      baseContainer.appendChild(playerDiv);
+      // Füge Event-Div zum Hauptcontainer hinzu
+      baseContainer.appendChild(eventDiv);
     });
 
     wrapper.appendChild(baseContainer);
@@ -134,7 +124,6 @@ Module.register("MMM-MyCalendar", {
     if (notification === "CALENDAR_DATA_RECEIVED") {
       this.calendarData = payload;
 
-      // Konvertiere startTime und endTime in Date-Objekte, falls nötig
       this.calendarData.forEach(event => {
         if (!(event.startTime instanceof Date)) {
           event.startTime = new Date(event.startTime);
