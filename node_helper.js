@@ -8,7 +8,6 @@ module.exports = NodeHelper.create({
   },
 
   socketNotificationReceived: function (notification, payload) {
-    console.log("node_helper received notification:", notification);
     if (notification === "GET_CALENDAR_DATA") {
       this.getCalendarData(payload.urls, payload.eventSettings);
     }
@@ -40,21 +39,38 @@ module.exports = NodeHelper.create({
                 continue;
               }
 
-              let description = event.description || "";
-              description += `\nCategory: ${category}`;
+              // Überprüfen, ob das Event wiederkehrend ist
+              if (event.rrule) {
+                // Wiederkehrende Ereignisse verarbeiten
+                const rule = event.rrule;
+                const futureInstances = rule.between(new Date(), new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)); // Berechne Vorkommen in den nächsten 30 Tagen
 
-              const icon = eventSettings[category]?.icon || "fas fa-calendar-alt";
-              const color = eventSettings[category]?.color || "#FFFFFF";
+                futureInstances.forEach(instance => {
+                  const instanceStart = DateTime.fromJSDate(instance);
+                  const instanceEnd = instanceStart.plus({ minutes: endTime.diff(startTime, 'minutes').minutes });
 
-              events.push({
-                title: event.summary,
-                startTime: startTime.toISO(),
-                endTime: endTime.toISO(),
-                description: description,
-                icon: icon,
-                color: color,
-                allDay: event.datetype === 'date'
-              });
+                  events.push({
+                    title: event.summary,
+                    startTime: instanceStart.toISO(),
+                    endTime: instanceEnd.toISO(),
+                    description: event.description || `\nCategory: ${category}`,
+                    icon: eventSettings[category]?.icon || "fas fa-calendar-alt",
+                    color: eventSettings[category]?.color || "#FFFFFF",
+                    allDay: event.datetype === 'date'
+                  });
+                });
+              } else {
+                // Normale Ereignisse verarbeiten
+                events.push({
+                  title: event.summary,
+                  startTime: startTime.toISO(),
+                  endTime: endTime.toISO(),
+                  description: event.description || `\nCategory: ${category}`,
+                  icon: eventSettings[category]?.icon || "fas fa-calendar-alt",
+                  color: eventSettings[category]?.color || "#FFFFFF",
+                  allDay: event.datetype === 'date'
+                });
+              }
             }
           }
           resolve();
