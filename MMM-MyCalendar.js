@@ -1,13 +1,10 @@
-/* MMM-MyCalendar.js */
-
 Module.register("MMM-MyCalendar", {
   defaults: {
     calendarUrls: {},  // Objekt für Kalender-URLs und Kategorien
+    eventSettings: {}, // Einstellungen für Icons und Farben
     updateInterval: 60 * 60 * 1000,
     fadeSpeed: 4000,
-    maximumEntries: 4,
-    defaultIcon: "fas fa-calendar-alt",
-    defaultColor: "#FFFFFF"
+    maximumEntries: 4
   },
 
   start: function () {
@@ -19,7 +16,10 @@ Module.register("MMM-MyCalendar", {
 
   getData: function () {
     // Sende die Anfrage an den node_helper, um die Kalenderdaten abzurufen
-    this.sendSocketNotification("GET_CALENDAR_DATA", { urls: this.config.calendarUrls });
+    this.sendSocketNotification("GET_CALENDAR_DATA", {
+      urls: this.config.calendarUrls,
+      eventSettings: this.config.eventSettings
+    });
   },
 
   getDom: function () {
@@ -39,7 +39,6 @@ Module.register("MMM-MyCalendar", {
     }
 
     const now = new Date();
-    console.log("Current Time:", now);
 
     // Filtere nur zukünftige Ereignisse und sortiere sie nach Startdatum
     const futureEvents = this.calendarData
@@ -52,32 +51,17 @@ Module.register("MMM-MyCalendar", {
       .sort((a, b) => a.startTime - b.startTime)
       .slice(0, this.config.maximumEntries);
 
-    console.log("Future Events:", futureEvents);
-
-    // Hauptcontainer für Events
     const baseContainer = document.createElement("div");
     baseContainer.className = "events-container";
 
     futureEvents.forEach(event => {
-      let formattedDate = "";
-      const eventDescription = event.description || "";
-
-      if (eventDescription) {
-        const dateMatch = eventDescription.match(/Date: (.*)/);
-        if (dateMatch && dateMatch[1]) {
-          formattedDate = dateMatch[1];
-        }
-      }
-
-      if (!formattedDate) {
-        formattedDate = event.startTime.toLocaleString([], {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-      }
+      let formattedDate = event.startTime.toLocaleString([], {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
 
       // 'player' Div
       const playerDiv = document.createElement("div");
@@ -89,17 +73,12 @@ Module.register("MMM-MyCalendar", {
 
       // 'icon' Span (das Icon)
       const iconSpan = document.createElement("span");
-      iconSpan.className = this.getEventIcon(eventDescription) + " icon";
+      iconSpan.className = event.icon + " icon"; // Verwende das übergebene Icon
 
       // 'visual' Div (die Pipe)
       const visualDiv = document.createElement("div");
       visualDiv.className = "visual";
-
-      // Setze die Farbe der Pipe basierend auf der Kategorie
-      const pipeColor = this.getPipeColor(eventDescription);
-      if (pipeColor) {
-        visualDiv.style.backgroundColor = pipeColor;
-      }
+      visualDiv.style.backgroundColor = event.color; // Verwende die übergebene Farbe
 
       // 'names' Div
       const namesDiv = document.createElement("div");
@@ -138,16 +117,6 @@ Module.register("MMM-MyCalendar", {
   socketNotificationReceived: function (notification, payload) {
     if (notification === "CALENDAR_DATA_RECEIVED") {
       this.calendarData = payload;
-
-      this.calendarData.forEach(event => {
-        if (!(event.startTime instanceof Date)) {
-          event.startTime = new Date(event.startTime);
-        }
-        if (!(event.endTime instanceof Date)) {
-          event.endTime = new Date(event.endTime);
-        }
-      });
-
       this.updateDom(this.config.fadeSpeed);
     }
   },
@@ -156,54 +125,5 @@ Module.register("MMM-MyCalendar", {
     setInterval(() => {
       this.getData();
     }, this.config.updateInterval);
-  },
-
-  // Funktion zum Abrufen des passenden Icons basierend auf der Kategorie in der Beschreibung
-  getEventIcon: function (eventDescription) {
-    if (eventDescription.includes("Category: meet friends")) {
-      return "fas fa-users";
-    } else if (eventDescription.includes("Category: holidays")) {
-      return "fas fa-umbrella-beach";
-    } else if (eventDescription.includes("Category: family")) {
-      return "fas fa-home";
-    } else if (eventDescription.includes("Category: studium")) {
-      return "fas fa-book";
-    } else if (eventDescription.includes("Category: andere Termine")) {
-      return "fas fa-calendar-alt";
-    } else if (eventDescription.includes("Category: Geburtstage")) {
-      return "fas fa-birthday-cake";
-    } else if (eventDescription.includes("Category: arzt")) {
-      return "fas fa-stethoscope";
-    } else if (eventDescription.includes("Category: Verbindung")) {
-      return "fas fa-network-wired";
-    } else if (eventDescription.includes("Category: Arbeit")) {
-      return "fas fa-briefcase";
-    } else {
-      return this.config.defaultIcon; // Verwende das Standard-Icon
-    }
-  },
-
-  getPipeColor: function (eventDescription) {
-    if (eventDescription.includes("Category: meet friends")) {
-      return "#FF6347";
-    } else if (eventDescription.includes("Category: holidays")) {
-      return "#FFD700";
-    } else if (eventDescription.includes("Category: family")) {
-      return "#1E90FF";
-    } else if (eventDescription.includes("Category: studium")) {
-      return "#32CD32";
-    } else if (eventDescription.includes("Category: andere Termine")) {
-      return "#FFFFFF";
-    } else if (eventDescription.includes("Category: Geburtstage")) {
-      return "#FF69B4";
-    } else if (eventDescription.includes("Category: arzt")) {
-      return "#8A2BE2";
-    } else if (eventDescription.includes("Category: Verbindung")) {
-      return "#FF4500";
-    } else if (eventDescription.includes("Category: Arbeit")) {
-      return "#A52A2A";
-    } else {
-      return this.config.defaultColor; // Verwende die Standardfarbe
-    }
   }
 });
