@@ -1,6 +1,6 @@
 /* MMM-MyCalendar.js */
 
-Module.register("MMM-MyCalendar", {
+Module.register("MMM-MYCALENDAR", {
   defaults: {
     calendarUrls: {},  // Objekt für Kalender-URLs und Kategorien
     eventSettings: {}, // Einstellungen für Icons und Farben
