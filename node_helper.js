@@ -9,56 +9,44 @@ module.exports = NodeHelper.create({
 
   socketNotificationReceived: function (notification, payload) {
     if (notification === "GET_CALENDAR_DATA") {
-      this.getCalendarData(payload.url);
+      this.getCalendarData(payload.urls);
     }
   },
 
-  getCalendarData: function (url) {
-    var self = this;
-
-    // ICS-Datei von der URL abrufen
-    https.get(url, (res) => {
-      let data = "";
-
-      res.on("data", (chunk) => {
-        data += chunk;
-      });
-
-      res.on("end", () => {
-        try {
-          // ICS-Daten parsen
-          const calendarData = ical.parseICS(data);
-
-          // Formatierte Ereignisdaten zurückschicken
-          const events = self.formatCalendarData(calendarData);
-          self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
-        } catch (error) {
-          console.error("Error parsing calendar data: ", error);
-        }
-      });
-    }).on("error", (err) => {
-      console.error("Error fetching calendar URL: ", err);
-    });
-  },
-
-  formatCalendarData: function (calendarData) {
+  getCalendarData: function (urls) {
+    const self = this;
     const events = [];
 
-    for (const key in calendarData) {
-      const event = calendarData[key];
-      if (event.type === "VEVENT") {
-        console.log("Event Start:", event.start);
-        console.log("Event End:", event.end);
-        console.log("Event Description:", event.description);
-        events.push({
-          title: event.summary,
-          startTime: new Date(event.start), // Konvertiere zu Date-Objekt
-          endTime: new Date(event.end),     // Konvertiere zu Date-Objekt
-          description: event.description || ""
-        });
-      }
-    }
+    for (const [url, category] of Object.entries(urls)) {
+      const httpsUrl = url.replace("webcal://", "https://");
 
-    return events;
+      https.get(httpsUrl, (res) => {
+        let data = "";
+
+        res.on("data", (chunk) => {
+          data += chunk;
+        });
+
+        res.on("end", () => {
+          const calendarData = ical.parseICS(data);
+
+          for (const key in calendarData) {
+            const event = calendarData[key];
+            if (event.type === "VEVENT") {
+              events.push({
+                title: event.summary,
+                startTime: new Date(event.start),
+                endTime: new Date(event.end),
+                description: event.description || `Category: ${category}`
+              });
+            }
+          }
+          // Sende die verarbeiteten Ereignisdaten zurück an das Frontend
+          self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
+        });
+      }).on("error", (err) => {
+        console.error("Error fetching calendar URL: ", err);
+      });
+    }
   }
 });

@@ -13,55 +13,19 @@ Module.register("MMM-MyCalendar", {
   start: function () {
     Log.info("Starting module: " + this.name);
     this.calendarData = [];
-    this.getData();
-    this.scheduleUpdate();
+    this.getData();  // Kalenderdaten laden
+    this.scheduleUpdate();  // Regelmäßige Updates planen
   },
 
   getData: function () {
-    this.calendarData = []; // Leere Kalenderdaten initialisieren
-    const now = new Date();
-
-    // Iteriere durch alle Kalender-URLs in der Konfiguration
-    for (const [url, category] of Object.entries(this.config.calendarUrls)) {
-      const httpsUrl = url.replace("webcal://", "https://");
-
-      // Kalenderdaten über fetch abrufen
-      fetch(httpsUrl)
-        .then(response => response.text())
-        .then(data => {
-          const calendar = new ICAL.Component(ICAL.parse(data)); // ICAL.js verwenden zum Parsen
-          const events = calendar.getAllSubcomponents("vevent");
-
-          events.forEach(event => {
-            const startTime = new Date(event.getFirstPropertyValue("dtstart"));
-            if (startTime > now) { // Nur zukünftige Ereignisse
-              const formattedDate = startTime.toLocaleString([], {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              });
-              this.calendarData.push({
-                title: event.getFirstPropertyValue("summary"),
-                description: `Category: ${category}\nDate: ${formattedDate}`,
-                startTime: startTime
-              });
-            }
-          });
-          this.updateDom(this.config.fadeSpeed); // UI aktualisieren
-        })
-        .catch(error => {
-          Log.error(`Error fetching calendar from URL ${httpsUrl}: ${error}`);
-        });
-    }
+    // Sende die Anfrage an den node_helper, um die Kalenderdaten abzurufen
+    this.sendSocketNotification("GET_CALENDAR_DATA", { urls: this.config.calendarUrls });
   },
-
 
   getDom: function () {
     const wrapper = document.createElement("div");
 
-    if (!this.calendarData) {
+    if (!this.calendarData || this.calendarData.length === 0) {
       wrapper.innerHTML = "Loading calendar...";
       return wrapper;
     }
