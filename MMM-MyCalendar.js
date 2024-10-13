@@ -93,10 +93,18 @@ Module.register("MMM-MyCalendar", {
     const baseContainer = document.createElement("div");
     baseContainer.className = "events-container";
 
+   // In der Darstellung der Ereignisse
     futureEvents.forEach(event => {
       // Konvertiere die Ereigniszeit in lokale Zeitzone für die Darstellung
-      const eventTime = luxon.DateTime.fromISO(event.startTime, { zone: 'utc' }).setZone('local');
-      const formattedDate = eventTime.toLocaleString(luxon.DateTime.DATETIME_MED);
+      let eventTime = luxon.DateTime.fromISO(event.startTime, { zone: 'utc' }).setZone('local');
+      let formattedDate;
+
+      if (event.allDay) {
+        // Formatierung für ganztägige Ereignisse
+        formattedDate = eventTime.toLocaleString(luxon.DateTime.DATE_MED);
+      } else {
+        formattedDate = eventTime.toLocaleString(luxon.DateTime.DATETIME_MED);
+      }
 
       // 'player' Div
       const playerDiv = document.createElement("div");

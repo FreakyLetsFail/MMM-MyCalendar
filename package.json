@@ -4,7 +4,7 @@
   "description": "A MagicMirror module for displaying calendar events",
   "main": "MMM-MyCalendar.js",
   "dependencies": {
-    "ical": "^0.7.0",  
+    "node-ical": "^0.7.0",  
     "request": "^2.88.2",
     "https": "^1.0.0",
     "luxon": "3.5.0"
