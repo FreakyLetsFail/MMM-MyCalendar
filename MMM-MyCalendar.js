@@ -1,21 +1,25 @@
 Module.register("MMM-MyCalendar", {
   defaults: {
-    calendarUrls: {},  // Objekt für Kalender-URLs und Kategorien
-    eventSettings: {}, // Einstellungen für Icons und Farben
+    calendarUrls: {},  // Object for calendar URLs and categories
+    eventSettings: {}, // Settings for icons and colors
     updateInterval: 60 * 60 * 1000,
     fadeSpeed: 4000,
     maximumEntries: 4
   },
 
+  // Include your CSS file
+  getStyles: function () {
+    return ["MMM-MyCalendar.css"];
+  },
+
   start: function () {
     Log.info("Starting module: " + this.name);
     this.calendarData = [];
-    this.getData();  // Kalenderdaten laden
-    this.scheduleUpdate();  // Regelmäßige Updates planen
+    this.getData();  // Load calendar data
+    this.scheduleUpdate();  // Schedule regular updates
   },
 
   getData: function () {
-    // Sende die Anfrage an den node_helper, um die Kalenderdaten abzurufen
     this.sendSocketNotification("GET_CALENDAR_DATA", {
       urls: this.config.calendarUrls,
       eventSettings: this.config.eventSettings
@@ -25,12 +29,12 @@ Module.register("MMM-MyCalendar", {
   getDom: function () {
     const wrapper = document.createElement("div");
 
-    // Überschrift mit einer Linie darunter
+    // Header with underline
     const header = document.createElement("h2");
-    header.innerHTML = "Kalendar";
+    header.innerHTML = "Kalender";
     wrapper.appendChild(header);
 
-    const separator = document.createElement("hr"); // Trennlinie
+    const separator = document.createElement("hr");
     wrapper.appendChild(separator);
 
     if (!this.calendarData || this.calendarData.length === 0) {
@@ -40,7 +44,7 @@ Module.register("MMM-MyCalendar", {
 
     const now = new Date();
 
-    // Filtere nur zukünftige Ereignisse und sortiere sie nach Startdatum
+    // Filter and sort future events
     const futureEvents = this.calendarData
       .filter(event => {
         if (!(event.startTime instanceof Date) || isNaN(event.startTime)) {
@@ -55,7 +59,7 @@ Module.register("MMM-MyCalendar", {
     baseContainer.className = "events-container";
 
     futureEvents.forEach(event => {
-      let formattedDate = event.startTime.toLocaleString([], {
+      const formattedDate = event.startTime.toLocaleString([], {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
@@ -71,14 +75,14 @@ Module.register("MMM-MyCalendar", {
       const headerDiv = document.createElement("div");
       headerDiv.className = "header";
 
-      // 'icon' Span (das Icon)
+      // 'icon' Span (the Icon)
       const iconSpan = document.createElement("span");
-      iconSpan.className = event.icon + " icon"; // Verwende das übergebene Icon
+      iconSpan.className = event.icon + " icon";
 
-      // 'visual' Div (die Pipe)
+      // 'visual' Div (the Pipe)
       const visualDiv = document.createElement("div");
       visualDiv.className = "visual";
-      visualDiv.style.backgroundColor = event.color; // Verwende die übergebene Farbe
+      visualDiv.style.backgroundColor = event.color;
 
       // 'names' Div
       const namesDiv = document.createElement("div");
@@ -94,19 +98,19 @@ Module.register("MMM-MyCalendar", {
       subtitleDiv.className = "subtitle";
       subtitleDiv.innerHTML = formattedDate;
 
-      // Füge 'title' und 'subtitle' zu 'names' hinzu
+      // Append 'title' and 'subtitle' to 'names'
       namesDiv.appendChild(titleDiv);
       namesDiv.appendChild(subtitleDiv);
 
-      // Füge 'icon', 'visual' und 'names' zu 'header' hinzu
+      // Append 'icon', 'visual', and 'names' to 'header'
       headerDiv.appendChild(iconSpan);
       headerDiv.appendChild(visualDiv);
       headerDiv.appendChild(namesDiv);
 
-      // Füge 'header' zu 'playerDiv' hinzu
+      // Append 'header' to 'playerDiv'
       playerDiv.appendChild(headerDiv);
 
-      // Füge 'playerDiv' zum Hauptcontainer hinzu
+      // Append 'playerDiv' to the main container
       baseContainer.appendChild(playerDiv);
     });
 

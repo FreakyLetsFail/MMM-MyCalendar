@@ -119,13 +119,15 @@
 
 /* Falls Sie die Farbe der Pipe basierend auf der Kategorie anpassen möchten,
    können Sie dies hier tun, indem Sie Klassen für jede Kategorie hinzufügen. */
-/* Beispiel:
+/* Beispiel: */
 .MMM-MyCalendar .header .visual.meet-friends {
   background-color: #FF6347; /* Tomatenrot */
-  
+}
+
 .MMM-MyCalendar .header .visual.holidays {
   background-color: #FFD700; /* Gold */
 }
+
 /* Fügen Sie ähnliche Regeln für andere Kategorien hinzu */
 
 /* Hinweis: Stellen Sie sicher, dass Sie die entsprechende Klasse im JavaScript hinzufügen,
