@@ -61,14 +61,25 @@ Module.register("MMM-MyCalendar", {
     // Aktuelle Zeit in UTC
     const now = luxon.DateTime.utc();
 
+    // Füge Logausgabe hinzu, um die aktuellen Zeiten zu überprüfen
+    console.log("Aktuelle Zeit (UTC):", now.toISO());
+
     // Filtere und sortiere zukünftige Ereignisse
     const futureEvents = this.calendarData
       .filter(event => {
         // Konvertiere event.startTime in Luxon DateTime in UTC
         let eventTime = luxon.DateTime.fromISO(event.startTime, { zone: 'utc' });
 
+        // Füge Logausgabe hinzu, um die Ereigniszeiten zu überprüfen
+        console.log("Ereignis:", event.title);
+        console.log("Ereigniszeit (UTC):", eventTime.toISO());
+
         // Vergleich der Zeiten
-        return eventTime > now;
+        const isFutureEvent = eventTime > now;
+
+        console.log("Ist zukünftiges Ereignis:", isFutureEvent);
+
+        return isFutureEvent;
       })
       .sort((a, b) => {
         let aTime = luxon.DateTime.fromISO(a.startTime, { zone: 'utc' });
