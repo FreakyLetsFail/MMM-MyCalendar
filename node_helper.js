@@ -10,7 +10,6 @@ module.exports = NodeHelper.create({
     console.log("MMM-MyCalendar helper started...");
   },
 
-
   socketNotificationReceived: function (notification, payload) {
     console.log("node_helper received notification:", notification);
     if (notification === "GET_CALENDAR_DATA") {
@@ -58,8 +57,8 @@ module.exports = NodeHelper.create({
 
                 events.push({
                   title: event.summary,
-                  startTime: startTime.toJSDate(),
-                  endTime: endTime.toJSDate(),
+                  startTime: startTime.toISO(), // Speichere als ISO-String
+                  endTime: endTime.toISO(),
                   description: description,
                   icon: icon,
                   color: color
@@ -95,7 +94,7 @@ module.exports = NodeHelper.create({
 
     if (eventDate instanceof Date) {
       // Wenn es ein Date-Objekt ist, konvertiere es mit Luxon
-      return DateTime.fromJSDate(eventDate);
+      return DateTime.fromJSDate(eventDate, { zone: 'utc' });
     } else if (typeof eventDate === 'object') {
       // Wenn es ein Objekt ist, das Zeitzoneninformationen enthält
       const { tz, ical, value } = eventDate;
@@ -108,12 +107,12 @@ module.exports = NodeHelper.create({
       // Versuche, das Datum mit dem Format von iCal zu parsen
       const format = "yyyyLLdd'T'HHmmss";
       // Verwende die Zeitzone, falls verfügbar, ansonsten UTC
-      const zone = tz || 'UTC';
+      const zone = tz || 'utc';
 
       return DateTime.fromFormat(dateTimeStr, format, { zone: zone });
     } else if (typeof eventDate === 'string') {
       // Wenn es ein String ist, versuche es direkt zu parsen
-      return DateTime.fromISO(eventDate);
+      return DateTime.fromISO(eventDate, { zone: 'utc' });
     }
 
     return null;

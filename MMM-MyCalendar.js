@@ -13,6 +13,14 @@ Module.register("MMM-MyCalendar", {
     return ["MMM-MyCalendar.css"];
   },
 
+  // Einbindung von Luxon
+  requiresVersion: "2.1.0",
+
+  // Einbindung der Luxon-Bibliothek
+  getScripts: function () {
+    return [];
+  },
+
   start: function () {
     Log.info("Starting module: " + this.name);
     this.calendarData = [];
@@ -39,42 +47,48 @@ Module.register("MMM-MyCalendar", {
 
   getDom: function () {
     const wrapper = document.createElement("div");
-  
+
     // Überschrift mit einer Linie darunter
     const header = document.createElement("h2");
     header.innerHTML = "Kalender";
     wrapper.appendChild(header);
-  
+
     const separator = document.createElement("hr");
     wrapper.appendChild(separator);
-  
+
     if (!this.calendarData || this.calendarData.length === 0) {
       wrapper.innerHTML = "Loading calendar...";
       return wrapper;
     }
-  
-    const now = luxon.DateTime.local();
-  
+
+    // Aktuelle Zeit in UTC
+    const now = DateTime.utc();
+
     // Filtere und sortiere zukünftige Ereignisse
     const futureEvents = this.calendarData
       .filter(event => {
-        // Konvertiere event.startTime in Luxon DateTime
-        let eventTime = luxon.DateTime.fromJSDate(new Date(event.startTime));
-  
+        // Konvertiere event.startTime in Luxon DateTime in UTC
+        let eventTime = DateTime.fromISO(event.startTime, { zone: 'utc' });
+
         // Vergleich der Zeiten
         return eventTime > now;
       })
-      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
+      .sort((a, b) => {
+        let aTime = DateTime.fromISO(a.startTime, { zone: 'utc' });
+        let bTime = DateTime.fromISO(b.startTime, { zone: 'utc' });
+        return aTime - bTime;
+      })
       .slice(0, this.config.maximumEntries);
-  
+
     console.log("Anzahl der zukünftigen Ereignisse:", futureEvents.length);
 
     const baseContainer = document.createElement("div");
     baseContainer.className = "events-container";
 
     futureEvents.forEach(event => {
-        const eventTime = luxon.DateTime.fromJSDate(new Date(event.startTime));
-        const formattedDate = eventTime.toLocaleString(luxon.DateTime.DATETIME_MED);
+      // Konvertiere die Ereigniszeit in lokale Zeitzone für die Darstellung
+      const eventTime = DateTime.fromISO(event.startTime, { zone: 'utc' }).setZone('local');
+      const formattedDate = eventTime.toLocaleString(DateTime.DATETIME_MED);
 
       // 'player' Div
       const playerDiv = document.createElement("div");
@@ -144,3 +158,6 @@ Module.register("MMM-MyCalendar", {
     }, this.config.updateInterval);
   }
 });
+
+// Einbindung von Luxon
+const { DateTime } = require('luxon');
