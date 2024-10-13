@@ -1,8 +1,6 @@
-/* node_helper.js */
-
 const NodeHelper = require("node_helper");
 const ical = require("node-ical");
-const { DateTime } = require('luxon'); // Luxon zur Zeitzonenbehandlung
+const { DateTime } = require('luxon');
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -12,7 +10,6 @@ module.exports = NodeHelper.create({
   socketNotificationReceived: function (notification, payload) {
     console.log("node_helper received notification:", notification);
     if (notification === "GET_CALENDAR_DATA") {
-      console.log("Received GET_CALENDAR_DATA with payload:", payload);
       this.getCalendarData(payload.urls, payload.eventSettings);
     }
   },
@@ -35,7 +32,6 @@ module.exports = NodeHelper.create({
           for (const key in data) {
             const event = data[key];
             if (event.type === "VEVENT") {
-              // Hier erhalten wir bereits alle Instanzen, einschließlich wiederkehrender Ereignisse
               let startTime = DateTime.fromJSDate(event.start);
               let endTime = DateTime.fromJSDate(event.end);
 
@@ -57,11 +53,10 @@ module.exports = NodeHelper.create({
                 description: description,
                 icon: icon,
                 color: color,
-                allDay: event.datetype === 'date' // Markiert ganztägige Ereignisse
+                allDay: event.datetype === 'date'
               });
             }
           }
-          console.log(`Anzahl der Ereignisse nach Verarbeitung von ${httpsUrl}:`, events.length);
           resolve();
         });
       });
@@ -69,8 +64,6 @@ module.exports = NodeHelper.create({
 
     try {
       await Promise.all(fetchPromises);
-      console.log("Gesamtzahl der verarbeiteten Ereignisse:", events.length);
-      console.log("Sending CALENDAR_DATA_RECEIVED notification to frontend...");
       self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
     } catch (error) {
       console.error("Fehler beim Abrufen der Kalenderdaten:", error);
