@@ -111,6 +111,36 @@
   color: var(--ONSP-INTERNAL-PLAYER-COLOR-TITLE);
 }
 
+/* Container für den Titel */
+.MMM-MyCalendar .header .names .title {
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+}
+
+/* Der animierte Text */
+.MMM-MyCalendar .header .names .title .marquee {
+  display: inline-block;
+  animation: marquee 15s linear infinite;
+}
+
+/* Keyframes für den Marquee-Effekt */
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  10% {
+    transform: translateX(0%);
+  }
+  90% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
 .MMM-MyCalendar .header .names .subtitle {
   font-size: 0.9em;
   color: var(--ONSP-INTERNAL-COLOR-MUTED);

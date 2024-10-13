@@ -13,49 +13,57 @@ module.exports = NodeHelper.create({
     }
   },
 
-  getCalendarData: function (urls, eventSettings) {
+  getCalendarData: async function (urls, eventSettings) {
     const self = this;
     const events = [];
-
-    for (const [url, category] of Object.entries(urls)) {
-      const httpsUrl = url.replace("webcal://", "https://");
-
-      https.get(httpsUrl, (res) => {
-        let data = "";
-
-        res.on("data", (chunk) => {
-          data += chunk;
-        });
-
-        res.on("end", () => {
-          const calendarData = ical.parseICS(data);
-
-          for (const key in calendarData) {
-            const event = calendarData[key];
-            if (event.type === "VEVENT") {
-              // Füge die Kategorie, das Icon und die Farbe zur Beschreibung hinzu
-              let description = event.description || "";
-              description += `\nCategory: ${category}`;
-              
-              const icon = eventSettings[category]?.icon || "fas fa-calendar-alt";
-              const color = eventSettings[category]?.color || "#FFFFFF";
-
-              events.push({
-                title: event.summary,
-                startTime: new Date(event.start),
-                endTime: new Date(event.end),
-                description: description,
-                icon: icon,
-                color: color
-              });
+  
+    const fetchPromises = Object.entries(urls).map(([url, category]) => {
+      return new Promise((resolve, reject) => {
+        const httpsUrl = url.replace("webcal://", "https://");
+  
+        https.get(httpsUrl, (res) => {
+          let data = "";
+  
+          res.on("data", (chunk) => {
+            data += chunk;
+          });
+  
+          res.on("end", () => {
+            const calendarData = ical.parseICS(data);
+  
+            for (const key in calendarData) {
+              const event = calendarData[key];
+              if (event.type === "VEVENT") {
+                let description = event.description || "";
+                description += `\nCategory: ${category}`;
+  
+                const icon = eventSettings[category]?.icon || "fas fa-calendar-alt";
+                const color = eventSettings[category]?.color || "#FFFFFF";
+  
+                events.push({
+                  title: event.summary,
+                  startTime: new Date(event.start),
+                  endTime: new Date(event.end),
+                  description: description,
+                  icon: icon,
+                  color: color
+                });
+              }
             }
-          }
-
-          self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
+            resolve();
+          });
+        }).on("error", (err) => {
+          console.error("Error fetching calendar URL: ", err);
+          reject(err);
         });
-      }).on("error", (err) => {
-        console.error("Error fetching calendar URL: ", err);
       });
+    });
+  
+    try {
+      await Promise.all(fetchPromises);
+      self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
+    } catch (error) {
+      console.error("Fehler beim Abrufen der Kalenderdaten:", error);
     }
   }
 });
