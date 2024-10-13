@@ -15,7 +15,7 @@ Module.register("MMM-MyCalendar", {
 
   // Einbindung von Luxon
   getScripts: function() {
-    return [this.file('luxon.min.js')];
+    return ["https://cdnjs.cloudflare.com/ajax/libs/luxon/3.0.1/luxon.min.js"];
   },
 
   start: function () {
