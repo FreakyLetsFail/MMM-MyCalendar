@@ -5,7 +5,8 @@
   "main": "MMM-MyCalendar.js",
   "dependencies": {
     "ical": "^0.7.0",  
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "https": "^1.0.0"
   },
   "scripts": {
     "lint": "eslint .",
@@ -18,7 +19,9 @@
     "url": "git+[GitHub url].git"
   },
   "keywords": [
-    "template"
+    "template",
+    "magicmirror",
+    "calendar"
   ],
   "author": "FreakyLetsFail",
   "license": "MIT",

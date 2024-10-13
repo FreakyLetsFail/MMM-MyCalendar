@@ -1,6 +1,6 @@
 const NodeHelper = require("node_helper");
 const ical = require("ical");  // Verwende das 'ical'-Modul, um die ICS-Daten zu verarbeiten
-const fs = require("fs");
+const https = require("https");
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -13,22 +13,31 @@ module.exports = NodeHelper.create({
     }
   },
 
-  getCalendarData: function (filePath) {
+  getCalendarData: function (url) {
     var self = this;
 
-    // Lese die .ics-Datei direkt vom Dateisystem
-    fs.readFile(filePath, "utf8", (err, data) => {
-      if (err) {
-        console.error("Error reading calendar file: ", err);
-        return;
-      }
+    // ICS-Datei von der URL abrufen
+    https.get(url, (res) => {
+      let data = "";
 
-      // ICS-Daten parsen
-      const calendarData = ical.parseICS(data);
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
 
-      // Formatierte Ereignisdaten zurückschicken
-      const events = self.formatCalendarData(calendarData);
-      self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
+      res.on("end", () => {
+        try {
+          // ICS-Daten parsen
+          const calendarData = ical.parseICS(data);
+
+          // Formatierte Ereignisdaten zurückschicken
+          const events = self.formatCalendarData(calendarData);
+          self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
+        } catch (error) {
+          console.error("Error parsing calendar data: ", error);
+        }
+      });
+    }).on("error", (err) => {
+      console.error("Error fetching calendar URL: ", err);
     });
   },
 
