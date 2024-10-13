@@ -123,6 +123,7 @@
 .MMM-MyCalendar .header .names .title .marquee {
   display: inline-block;
   animation: marquee 15s linear infinite;
+  animation-delay: 15s;
 }
 
 /* Keyframes für den Marquee-Effekt */

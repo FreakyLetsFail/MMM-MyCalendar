@@ -34,6 +34,20 @@ module.exports = NodeHelper.create({
             for (const key in calendarData) {
               const event = calendarData[key];
               if (event.type === "VEVENT") {
+                // Loggen der rohen Datumswerte
+                console.log("Raw event.start:", event.start);
+                console.log("Raw event.end:", event.end);
+  
+                // Angepasstes Parsing der Datumswerte
+                const startTime = parseCustomDateTime(event.start);
+                const endTime = parseCustomDateTime(event.end);
+  
+                // Überprüfen auf gültige Datumswerte
+                if (isNaN(startTime) || isNaN(endTime)) {
+                  console.error("Ungültiges Datum für Ereignis:", event.summary);
+                  continue; // Überspringe dieses Ereignis
+                }
+  
                 let description = event.description || "";
                 description += `\nCategory: ${category}`;
   
@@ -42,8 +56,8 @@ module.exports = NodeHelper.create({
   
                 events.push({
                   title: event.summary,
-                  startTime: new Date(event.start),
-                  endTime: new Date(event.end),
+                  startTime: startTime,
+                  endTime: endTime,
                   description: description,
                   icon: icon,
                   color: color
@@ -61,6 +75,7 @@ module.exports = NodeHelper.create({
   
     try {
       await Promise.all(fetchPromises);
+      console.log("Gesamtzahl der verarbeiteten Ereignisse:", events.length);
       self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
     } catch (error) {
       console.error("Fehler beim Abrufen der Kalenderdaten:", error);
