@@ -14,11 +14,8 @@ Module.register("MMM-MyCalendar", {
   },
 
   // Einbindung von Luxon
-  requiresVersion: "2.1.0",
-
-  // Einbindung der Luxon-Bibliothek
-  getScripts: function () {
-    return [];
+  getScripts: function() {
+    return [this.file('luxon.min.js')];
   },
 
   start: function () {
@@ -62,20 +59,20 @@ Module.register("MMM-MyCalendar", {
     }
 
     // Aktuelle Zeit in UTC
-    const now = DateTime.utc();
+    const now = luxon.DateTime.utc();
 
     // Filtere und sortiere zukünftige Ereignisse
     const futureEvents = this.calendarData
       .filter(event => {
         // Konvertiere event.startTime in Luxon DateTime in UTC
-        let eventTime = DateTime.fromISO(event.startTime, { zone: 'utc' });
+        let eventTime = luxon.DateTime.fromISO(event.startTime, { zone: 'utc' });
 
         // Vergleich der Zeiten
         return eventTime > now;
       })
       .sort((a, b) => {
-        let aTime = DateTime.fromISO(a.startTime, { zone: 'utc' });
-        let bTime = DateTime.fromISO(b.startTime, { zone: 'utc' });
+        let aTime = luxon.DateTime.fromISO(a.startTime, { zone: 'utc' });
+        let bTime = luxon.DateTime.fromISO(b.startTime, { zone: 'utc' });
         return aTime - bTime;
       })
       .slice(0, this.config.maximumEntries);
@@ -87,8 +84,8 @@ Module.register("MMM-MyCalendar", {
 
     futureEvents.forEach(event => {
       // Konvertiere die Ereigniszeit in lokale Zeitzone für die Darstellung
-      const eventTime = DateTime.fromISO(event.startTime, { zone: 'utc' }).setZone('local');
-      const formattedDate = eventTime.toLocaleString(DateTime.DATETIME_MED);
+      const eventTime = luxon.DateTime.fromISO(event.startTime, { zone: 'utc' }).setZone('local');
+      const formattedDate = eventTime.toLocaleString(luxon.DateTime.DATETIME_MED);
 
       // 'player' Div
       const playerDiv = document.createElement("div");
@@ -158,6 +155,3 @@ Module.register("MMM-MyCalendar", {
     }, this.config.updateInterval);
   }
 });
-
-// Einbindung von Luxon
-const { DateTime } = require('luxon');
