@@ -39,47 +39,42 @@ Module.register("MMM-MyCalendar", {
 
   getDom: function () {
     const wrapper = document.createElement("div");
-
+  
     // Überschrift mit einer Linie darunter
     const header = document.createElement("h2");
     header.innerHTML = "Kalender";
     wrapper.appendChild(header);
-
+  
     const separator = document.createElement("hr");
     wrapper.appendChild(separator);
-
+  
     if (!this.calendarData || this.calendarData.length === 0) {
       wrapper.innerHTML = "Loading calendar...";
       return wrapper;
     }
-
-    const now = new Date();
-
+  
+    const now = luxon.DateTime.local();
+  
     // Filtere und sortiere zukünftige Ereignisse
     const futureEvents = this.calendarData
       .filter(event => {
-        if (!(event.startTime instanceof Date) || isNaN(event.startTime)) {
-          event.startTime = new Date(event.startTime);
-        }
-        // Vergleiche die Zeiten in Millisekunden
-        return event.startTime.getTime() > now.getTime();
+        // Konvertiere event.startTime in Luxon DateTime
+        let eventTime = luxon.DateTime.fromJSDate(new Date(event.startTime));
+  
+        // Vergleich der Zeiten
+        return eventTime > now;
       })
-      .sort((a, b) => a.startTime - b.startTime)
+      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
       .slice(0, this.config.maximumEntries);
-
+  
     console.log("Anzahl der zukünftigen Ereignisse:", futureEvents.length);
 
     const baseContainer = document.createElement("div");
     baseContainer.className = "events-container";
 
     futureEvents.forEach(event => {
-      const formattedDate = event.startTime.toLocaleString([], {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+        const eventTime = luxon.DateTime.fromJSDate(new Date(event.startTime));
+        const formattedDate = eventTime.toLocaleString(luxon.DateTime.DATETIME_MED);
 
       // 'player' Div
       const playerDiv = document.createElement("div");
