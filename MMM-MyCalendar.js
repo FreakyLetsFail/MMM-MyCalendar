@@ -79,7 +79,7 @@ Module.register("MMM-MyCalendar", {
         });
       }
 
-      c // 'player' Div
+      // 'player' Div
       const playerDiv = document.createElement("div");
       playerDiv.className = "player";
 
