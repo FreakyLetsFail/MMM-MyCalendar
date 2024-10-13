@@ -1,10 +1,12 @@
+/* MMM-MyCalendar.js */
+
 Module.register("MMM-MyCalendar", {
   defaults: {
     calendarUrls: {},  // Objekt für Kalender-URLs und Kategorien
     eventSettings: {}, // Einstellungen für Icons und Farben
-    updateInterval: 60 * 60 * 1000,
+    updateInterval: 60 * 60 * 1000, // Aktualisierung alle 60 Minuten
     fadeSpeed: 4000,
-    maximumEntries: 10 // Erhöhen Sie diesen Wert, um mehr Einträge anzuzeigen
+    maximumEntries: 10 // Maximale Anzahl der angezeigten Einträge
   },
 
   getStyles: function () {
@@ -19,10 +21,20 @@ Module.register("MMM-MyCalendar", {
   },
 
   getData: function () {
+    console.log("Sending GET_CALENDAR_DATA notification to node_helper...");
     this.sendSocketNotification("GET_CALENDAR_DATA", {
       urls: this.config.calendarUrls,
       eventSettings: this.config.eventSettings
     });
+  },
+
+  socketNotificationReceived: function (notification, payload) {
+    console.log("Module received notification:", notification);
+    if (notification === "CALENDAR_DATA_RECEIVED") {
+      this.calendarData = payload;
+      console.log("Empfangene Ereignisse vom node_helper:", this.calendarData.length);
+      this.updateDom(this.config.fadeSpeed);
+    }
   },
 
   getDom: function () {
@@ -42,8 +54,6 @@ Module.register("MMM-MyCalendar", {
     }
 
     const now = new Date();
-    const nowUTC = new Date(now.toISOString());
-    console.log("Aktuelle Zeit (nowUTC):", nowUTC);
 
     // Filtere und sortiere zukünftige Ereignisse
     const futureEvents = this.calendarData
@@ -51,8 +61,8 @@ Module.register("MMM-MyCalendar", {
         if (!(event.startTime instanceof Date) || isNaN(event.startTime)) {
           event.startTime = new Date(event.startTime);
         }
-        console.log("Ereignis:", event.title, "Startzeit:", event.startTime);
-        return event.startTime > nowUTC;
+        // Vergleiche die Zeiten in Millisekunden
+        return event.startTime.getTime() > now.getTime();
       })
       .sort((a, b) => a.startTime - b.startTime)
       .slice(0, this.config.maximumEntries);
@@ -131,14 +141,6 @@ Module.register("MMM-MyCalendar", {
 
     wrapper.appendChild(baseContainer);
     return wrapper;
-  },
-
-  socketNotificationReceived: function (notification, payload) {
-    if (notification === "CALENDAR_DATA_RECEIVED") {
-      this.calendarData = payload;
-      console.log("Empfangene Ereignisse vom node_helper:", this.calendarData.length);
-      this.updateDom(this.config.fadeSpeed);
-    }
   },
 
   scheduleUpdate: function () {

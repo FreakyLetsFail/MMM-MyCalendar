@@ -1,7 +1,9 @@
+/* node_helper.js */
+
 const NodeHelper = require("node_helper");
 const ical = require("ical");
 const https = require("https");
-const { DateTime } = require('luxon');
+const { DateTime } = require('luxon'); // Luxon zur Zeitzonenbehandlung
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -9,8 +11,10 @@ module.exports = NodeHelper.create({
   },
 
   socketNotificationReceived: function (notification, payload) {
+    console.log("node_helper received notification:", notification);
     if (notification === "GET_CALENDAR_DATA") {
-      this.getCalendarData(payload.urls, payload.eventSettings); // Event-Einstellungen übergeben
+      console.log("Received GET_CALENDAR_DATA with payload:", payload);
+      this.getCalendarData(payload.urls, payload.eventSettings);
     }
   },
 
@@ -61,10 +65,11 @@ module.exports = NodeHelper.create({
                 });
               }
             }
+            console.log(`Anzahl der Ereignisse nach Verarbeitung von ${httpsUrl}:`, events.length);
             resolve();
           });
         }).on("error", (err) => {
-          console.error("Error fetching calendar URL:", httpsUrl, err);
+          console.error("Fehler beim Abrufen der Kalender-URL:", httpsUrl, err);
           // Wichtig: resolve() aufrufen, damit Promise.all nicht hängen bleibt
           resolve();
         });
@@ -74,13 +79,14 @@ module.exports = NodeHelper.create({
     try {
       await Promise.all(fetchPromises);
       console.log("Gesamtzahl der verarbeiteten Ereignisse:", events.length);
+      console.log("Sending CALENDAR_DATA_RECEIVED notification to frontend...");
       self.sendSocketNotification("CALENDAR_DATA_RECEIVED", events);
     } catch (error) {
       console.error("Fehler beim Abrufen der Kalenderdaten:", error);
     }
   },
 
-  // Neue Funktion zum Parsen der Ereignisdaten mit Luxon
+  // Funktion zum Parsen der Ereignisdaten mit Luxon
   parseEventDate: function (eventDate) {
     if (!eventDate) {
       return null;
@@ -100,7 +106,6 @@ module.exports = NodeHelper.create({
 
       // Versuche, das Datum mit dem Format von iCal zu parsen
       const format = "yyyyLLdd'T'HHmmss";
-
       // Verwende die Zeitzone, falls verfügbar, ansonsten UTC
       const zone = tz || 'UTC';
 
