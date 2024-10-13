@@ -11,6 +11,14 @@ module.exports = NodeHelper.create({
   },
 
   socketNotificationReceived: function (notification, payload) {
+    console.log("node_helper hat Benachrichtigung erhalten:", notification);
+    if (notification === "TEST_NOTIFICATION") {
+      console.log("TEST_NOTIFICATION empfangen mit Payload:", payload);
+      this.sendSocketNotification("TEST_RESPONSE", { success: true });
+    }
+  },
+
+  socketNotificationReceived: function (notification, payload) {
     console.log("node_helper received notification:", notification);
     if (notification === "GET_CALENDAR_DATA") {
       console.log("Received GET_CALENDAR_DATA with payload:", payload);

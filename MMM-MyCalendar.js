@@ -1,6 +1,6 @@
 /* MMM-MyCalendar.js */
 
-Module.register("MMM-MYCALENDAR", {
+Module.register("MMM-MyCalendar", {
   defaults: {
     calendarUrls: {},  // Objekt für Kalender-URLs und Kategorien
     eventSettings: {}, // Einstellungen für Icons und Farben
@@ -15,9 +15,15 @@ Module.register("MMM-MYCALENDAR", {
 
   start: function () {
     Log.info("Starting module: " + this.name);
-    this.calendarData = [];
-    this.getData();  // Kalenderdaten laden
-    this.scheduleUpdate();  // Regelmäßige Updates planen
+    console.log("MMM-MyCalendar Modul wurde gestartet");
+    this.sendSocketNotification("TEST_NOTIFICATION", { test: true });
+  },
+  
+  socketNotificationReceived: function (notification, payload) {
+    console.log("Modul hat Benachrichtigung erhalten:", notification);
+    if (notification === "TEST_RESPONSE") {
+      console.log("Testantwort vom node_helper erhalten:", payload);
+    }
   },
 
   getData: function () {
