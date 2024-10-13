@@ -86,7 +86,7 @@ module.exports = NodeHelper.create({
     }
   },
 
-  // Funktion zum Parsen der Ereignisdaten mit Luxon
+  // Angepasste Funktion zum Parsen der Ereignisdaten mit Luxon
   parseEventDate: function (eventDate) {
     if (!eventDate) {
       return null;
@@ -104,15 +104,48 @@ module.exports = NodeHelper.create({
         return null;
       }
 
-      // Versuche, das Datum mit dem Format von iCal zu parsen
-      const format = "yyyyLLdd'T'HHmmss";
+      console.log("Parsing date string:", dateTimeStr);
+
+      // Bestimme das richtige Format
+      let format = "";
+
+      if (dateTimeStr.endsWith('Z')) {
+        // UTC-Zeit mit 'Z' am Ende
+        format = "yyyyLLdd'T'HHmmss'Z'";
+      } else if (/[+-]\d{4}$/.test(dateTimeStr)) {
+        // Zeit mit Zeitzonenoffset
+        format = "yyyyLLdd'T'HHmmssZZ";
+      } else if (/^\d{8}$/.test(dateTimeStr)) {
+        // Ganztägiges Ereignis ohne Zeitangabe
+        format = "yyyyLLdd";
+      } else {
+        // Standardformat ohne Zeitzoneninformationen
+        format = "yyyyLLdd'T'HHmmss";
+      }
+
       // Verwende die Zeitzone, falls verfügbar, ansonsten UTC
       const zone = tz || 'utc';
 
-      return DateTime.fromFormat(dateTimeStr, format, { zone: zone });
+      const parsedDate = DateTime.fromFormat(dateTimeStr, format, { zone: zone });
+
+      if (!parsedDate.isValid) {
+        console.error("Fehler beim Parsen des Datums:", dateTimeStr);
+        return null;
+      }
+
+      console.log("Parsed DateTime:", parsedDate.toISO());
+
+      return parsedDate;
     } else if (typeof eventDate === 'string') {
       // Wenn es ein String ist, versuche es direkt zu parsen
-      return DateTime.fromISO(eventDate, { zone: 'utc' });
+      const parsedDate = DateTime.fromISO(eventDate, { zone: 'utc' });
+
+      if (!parsedDate.isValid) {
+        console.error("Fehler beim Parsen des Datums:", eventDate);
+        return null;
+      }
+
+      return parsedDate;
     }
 
     return null;
