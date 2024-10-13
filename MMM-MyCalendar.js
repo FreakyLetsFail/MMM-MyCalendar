@@ -15,15 +15,9 @@ Module.register("MMM-MyCalendar", {
 
   start: function () {
     Log.info("Starting module: " + this.name);
-    console.log("MMM-MyCalendar Modul wurde gestartet");
-    this.sendSocketNotification("TEST_NOTIFICATION", { test: true });
-  },
-  
-  socketNotificationReceived: function (notification, payload) {
-    console.log("Modul hat Benachrichtigung erhalten:", notification);
-    if (notification === "TEST_RESPONSE") {
-      console.log("Testantwort vom node_helper erhalten:", payload);
-    }
+    this.calendarData = [];
+    this.getData();  // Kalenderdaten laden
+    this.scheduleUpdate();  // Regelmäßige Updates planen
   },
 
   getData: function () {
